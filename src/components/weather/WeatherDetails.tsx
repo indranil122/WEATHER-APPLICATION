@@ -11,16 +11,8 @@ export function WeatherDetails({ weather }: WeatherDetailsProps) {
   const astro = weather.forecast.forecastday[0].astro;
   const aq = current.air_quality;
 
-  const details = [
-    { label: 'Wind', value: `${current.wind_kph} km/h`, icon: Wind, color: 'text-blue-300' },
-    { label: 'Humidity', value: `${current.humidity}%`, icon: Droplets, color: 'text-sky-300' },
-    { label: 'UV Index', value: current.uv, icon: Sun, color: 'text-yellow-300' },
-  ];
-
   const pollutantLabels = [
     { label: 'PM2.5', value: Math.round(aq.pm2_5), icon: Microscope, unit: 'µg/m³' },
-    { label: 'PM10', value: Math.round(aq.pm10), icon: Activity, unit: 'µg/m³' },
-    { label: 'NO2', value: Math.round(aq.no2), icon: Navigation, unit: 'µg/m³' },
     { label: 'O3', value: Math.round(aq.o3), icon: Cloud, unit: 'µg/m³' },
   ];
 
@@ -30,66 +22,79 @@ export function WeatherDetails({ weather }: WeatherDetailsProps) {
   }
 
   function getAQIColor(index: number) {
-    const colors = ['bg-emerald-500', 'bg-yellow-500', 'bg-orange-500', 'bg-red-500', 'bg-purple-500', 'bg-red-950'];
-    return colors[index - 1] || 'bg-gray-500';
+    const colors = ['bg-emerald-400', 'bg-yellow-400', 'bg-orange-400', 'bg-red-400', 'bg-purple-400', 'bg-red-900'];
+    return colors[index - 1] || 'bg-gray-400';
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="grid grid-cols-2 gap-3">
-        {details.map((detail, index) => (
-          <GlassCard key={detail.label} delay={0.1 * index} className="p-4 flex flex-col justify-between text-left group hover:bg-[#ffffff33] transition-colors rounded-[24px]">
-            <p className="text-[10px] uppercase font-bold opacity-60 mb-2">{detail.label}</p>
-            <div className="flex items-center justify-between mt-1">
-              <p className="text-xl font-semibold flex items-baseline gap-1">
-                {detail.value.toString().replace(/[a-zA-Z/%]+/, '').trim()}
-                <span className="text-sm opacity-70">
-                  {detail.value.toString().match(/[a-zA-Z/%]+/)?.[0] || ''}
-                </span>
-              </p>
-              <detail.icon className={detail.color + " w-4 h-4"} />
-            </div>
-          </GlassCard>
-        ))}
-        
-        {/* AQI Summary Card */}
-        <GlassCard delay={0.3} className="p-4 flex flex-col justify-between text-left group hover:bg-[#ffffff33] transition-colors rounded-[24px]">
-          <p className="text-[10px] uppercase font-bold opacity-60 mb-2 tracking-widest">Air Quality</p>
-          <div className="flex items-center gap-3">
-            <div className={`w-2 h-8 rounded-full ${getAQIColor(aq["us-epa-index"])} shadow-lg shadow-black/20`} />
-            <div>
-              <p className="text-lg font-bold leading-tight">{getAQIStatus(aq["us-epa-index"])}</p>
-              <p className="text-[10px] opacity-60">US EPA Index {aq["us-epa-index"]}</p>
-            </div>
+    <div className="flex flex-col gap-4 h-full font-sans">
+      
+      {/* BIG CARD: AQI & Pollutants */}
+      <GlassCard delay={0.1} className="p-5 flex flex-col group">
+        <div className="flex items-center gap-1.5 opacity-60 mb-4 text-white">
+          <WindIcon className="w-3.5 h-3.5" />
+          <p className="text-[11px] uppercase font-bold tracking-widest">Air Quality</p>
+        </div>
+        <div className="flex items-center gap-4 mb-5">
+          <div className={`w-2.5 h-10 rounded-full ${getAQIColor(aq["us-epa-index"])} shadow-[0_0_15px_currentColor] opacity-80`} />
+          <div>
+            <p className="text-2xl font-bold leading-tight tracking-tight">{getAQIStatus(aq["us-epa-index"])}</p>
+            <p className="text-[11px] opacity-60 mt-0.5">Targeting US EPA Index {aq["us-epa-index"]}</p>
           </div>
-        </GlassCard>
-      </div>
-
-      {/* AQI Components Grid */}
-      <GlassCard delay={0.4} className="p-4 rounded-[24px]">
-        <h4 className="text-[10px] uppercase font-bold opacity-60 mb-4 flex items-center gap-2">
-          <WindIcon className="w-3 h-3" />
-          Pollutants Breakdown
-        </h4>
-        <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+        </div>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2 pt-4 border-t border-white/10">
           {pollutantLabels.map((p) => (
-            <div key={p.label} className="flex items-center justify-between group/p">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center group-hover/p:bg-white/10 transition-colors">
-                  <p.icon className="w-3 h-3 text-white/70" />
-                </div>
-                <span className="text-xs font-medium opacity-60">{p.label}</span>
-              </div>
-              <span className="text-xs font-bold">{p.value}<span className="text-[8px] opacity-40 ml-0.5">{p.unit}</span></span>
+            <div key={p.label} className="flex flex-col gap-1">
+               <span className="text-[10px] font-bold opacity-50 uppercase tracking-wider">{p.label}</span>
+               <span className="text-sm font-semibold">{p.value}<span className="text-[9px] opacity-40 ml-0.5 font-normal">{p.unit}</span></span>
             </div>
           ))}
         </div>
       </GlassCard>
 
-      <div className="flex justify-between pt-4 border-t border-white/10 text-[10px] uppercase font-bold tracking-widest opacity-60 px-2 mt-2">
-        <div className="flex items-center gap-1.5"><Sunrise className="w-3 h-3 text-orange-300" /> {astro.sunrise}</div>
-        <div className="flex items-center gap-1.5"><Sunset className="w-3 h-3 text-purple-300" /> {astro.sunset}</div>
+      {/* MEDIUM CARDS: Grid for Wind, Humidity */}
+      <div className="grid grid-cols-2 gap-4">
+        <GlassCard delay={0.2} className="p-4 flex flex-col text-left group">
+          <div className="flex items-center gap-1.5 opacity-60 mb-3 text-blue-300">
+            <Wind className="w-3.5 h-3.5" />
+            <p className="text-[10px] uppercase font-bold tracking-widest text-white">Wind</p>
+          </div>
+          <p className="text-xl font-bold flex items-baseline gap-1 mt-auto">
+            {current.wind_kph}
+            <span className="text-[11px] opacity-60 font-medium tracking-normal">km/h</span>
+          </p>
+        </GlassCard>
+
+        <GlassCard delay={0.25} className="p-4 flex flex-col text-left group">
+          <div className="flex items-center gap-1.5 opacity-60 mb-3 text-sky-300">
+            <Droplets className="w-3.5 h-3.5" />
+            <p className="text-[10px] uppercase font-bold tracking-widest text-white">Humidity</p>
+          </div>
+          <p className="text-xl font-bold flex items-baseline gap-1 mt-auto">
+            {current.humidity}
+            <span className="text-[11px] opacity-60 font-medium tracking-normal">%</span>
+          </p>
+        </GlassCard>
       </div>
+      
+      {/* MEDIUM CARD: UV Index */}
+      <GlassCard delay={0.3} className="p-4 flex flex-col text-left group">
+         <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-1.5 opacity-60 mb-2 text-yellow-300">
+                <Sun className="w-3.5 h-3.5" />
+                <p className="text-[10px] uppercase font-bold tracking-widest text-white">UV Index</p>
+              </div>
+              <p className="text-xl font-bold mt-1">{current.uv} <span className="text-xs font-medium opacity-60">
+                {current.uv > 7 ? 'High' : current.uv > 3 ? 'Moderate' : 'Low'}
+              </span></p>
+            </div>
+            <div className="flex flex-col gap-2 pl-4 border-l border-white/10 text-[10px] font-bold tracking-widest opacity-70 uppercase">
+                <div className="flex items-center gap-2"><Sunrise className="w-3.5 h-3.5 text-orange-300 opacity-80" /> {astro.sunrise}</div>
+                <div className="flex items-center gap-2"><Sunset className="w-3.5 h-3.5 text-purple-300 opacity-80" /> {astro.sunset}</div>
+            </div>
+         </div>
+      </GlassCard>
     </div>
   );
 }

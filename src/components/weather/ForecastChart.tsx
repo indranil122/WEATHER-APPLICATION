@@ -26,9 +26,13 @@ export function ForecastChart({ weather }: ForecastChartProps) {
             <AreaChart data={hourlyData}>
               <defs>
                 <linearGradient id="tempGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#fff" stopOpacity={0.4}/>
+                  <stop offset="5%" stopColor="#fff" stopOpacity={0.6}/>
                   <stop offset="95%" stopColor="#fff" stopOpacity={0}/>
                 </linearGradient>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
               </defs>
               <XAxis 
                 dataKey="time" 
@@ -40,18 +44,22 @@ export function ForecastChart({ weather }: ForecastChartProps) {
               />
               <YAxis hide domain={['dataMin - 2', 'dataMax + 2']} />
               <Tooltip 
-                contentStyle={{ backgroundColor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', border: 'none', borderRadius: '12px', color: '#fff' }}
-                itemStyle={{ color: '#fff' }}
-                labelStyle={{ color: '#ffffff80', fontSize: '10px' }}
+                contentStyle={{ backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '16px', color: '#fff', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}
+                itemStyle={{ color: '#fff', fontWeight: 600 }}
+                labelStyle={{ color: '#ffffff80', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px' }}
+                cursor={{ stroke: 'rgba(255,255,255,0.2)', strokeWidth: 2, strokeDasharray: '4 4' }}
               />
               <Area 
                 type="monotone" 
                 dataKey="temp" 
                 stroke="#fff" 
-                strokeWidth={3}
+                strokeWidth={4}
                 fillOpacity={1} 
                 fill="url(#tempGradient)" 
-                isAnimationActive={false}
+                isAnimationActive={true}
+                animationDuration={2000}
+                animationEasing="ease-out"
+                filter="url(#glow)"
               />
             </AreaChart>
           </ResponsiveContainer>

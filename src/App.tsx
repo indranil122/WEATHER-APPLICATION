@@ -95,12 +95,24 @@ export default function App() {
     )}>
       <Preloader loading={loading} />
       {/* Dynamic Background Elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div 
-          className="absolute -top-1/4 -left-1/4 w-[80%] h-[80%] bg-white/20 blur-[80px] md:blur-[120px] rounded-full mix-blend-overlay" 
+      <div className="fixed inset-0 pointer-events-none overflow-hidden noise-bg z-0">
+        <motion.div 
+          animate={{ 
+            rotate: 360, 
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.5, 0.3] 
+          }}
+          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+          className="absolute -top-1/4 -left-1/4 w-[80%] h-[80%] bg-white/20 blur-[100px] md:blur-[140px] rounded-full mix-blend-overlay" 
         />
-        <div 
-          className="absolute -bottom-1/4 -right-1/4 w-[70%] h-[70%] bg-blue-400/20 blur-[100px] md:blur-[150px] rounded-full mix-blend-overlay" 
+        <motion.div 
+          animate={{ 
+            rotate: -360, 
+            scale: [1, 1.2, 1],
+            opacity: [0.2, 0.4, 0.2]
+          }}
+          transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
+          className="absolute -bottom-1/4 -right-1/4 w-[70%] h-[70%] bg-blue-400/20 blur-[120px] md:blur-[160px] rounded-full" 
         />
       </div>
 
@@ -172,18 +184,21 @@ export default function App() {
                 {/* Details Column */}
                 <div className="md:col-span-1 flex flex-col gap-6">
                   <WeatherDetails weather={weather} />
-                  <button 
+                  <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => weather && lastCoords && toggleSaveCity({ name: weather.location.name, lat: lastCoords.lat, lon: lastCoords.lon })}
                       className={cn(
-                        "flex items-center justify-center gap-2 px-6 py-4 rounded-[24px] transition-all border text-sm font-bold uppercase tracking-wider",
+                        "relative overflow-hidden group flex items-center justify-center gap-2 px-6 py-4 rounded-[24px] transition-all border text-sm font-bold uppercase tracking-wider",
                         savedCities.some(c => c.name === weather.location.name) 
-                          ? "bg-white text-blue-600 border-white" 
-                          : "bg-[#ffffff26] text-white border-[#ffffff40] hover:bg-[#ffffff40]"
+                          ? "bg-white text-blue-600 border-white shadow-[0_0_20px_rgba(255,255,255,0.4)]" 
+                          : "bg-[#ffffff1a] text-white border-white/20 hover:bg-[#ffffff26] hover:border-white/40 shadow-lg"
                       )}
                     >
+                      <div className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500 rounded-[24px] opacity-20" />
                       <Bookmark className={cn("w-4 h-4", savedCities.some(c => c.name === weather.location.name) && "fill-current")} />
                       {savedCities.some(c => c.name === weather.location.name) ? 'Saved' : 'Save City'}
-                    </button>
+                    </motion.button>
                 </div>
 
                 {/* Bottom Section */}
