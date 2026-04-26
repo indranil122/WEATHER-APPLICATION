@@ -38,7 +38,33 @@ export function WeatherHero({ weather, theme }: WeatherHeroProps) {
         transition={{ type: "spring", stiffness: 100 }}
         className="relative w-48 h-48 flex items-center justify-center"
       >
-        <div className="absolute inset-0 bg-yellow-400/30 rounded-full blur-2xl md:blur-3xl shadow-[0_0_40px_rgba(255,220,100,0.3)] md:shadow-[0_0_80px_rgba(255,220,100,0.4)] md:animate-pulse" />
+        {theme.name === 'Sunny' && (
+           <motion.div 
+             animate={{ rotate: 360 }}
+             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+             className="absolute inset-0 bg-yellow-400/30 rounded-full blur-2xl md:blur-3xl shadow-[0_0_40px_rgba(255,220,100,0.3)] md:shadow-[0_0_80px_rgba(255,220,100,0.4)]"
+           />
+        )}
+        {(theme.name === 'Foggy' || theme.name === 'Cloudy') && (
+           <motion.div 
+             animate={{ opacity: [0.5, 1, 0.5] }}
+             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+             className="absolute inset-0 bg-white/20 rounded-full blur-3xl"
+           />
+        )}
+        {theme.name === 'Rainy' && (
+          <div className="absolute inset-0 z-0 overflow-hidden">
+            {[...Array(10)].map((_, i) => (
+               <motion.div
+                 key={i}
+                 initial={{ y: -50, x: Math.random() * 200 }}
+                 animate={{ y: 200, x: Math.random() * 200 }}
+                 transition={{ duration: 0.5 + Math.random(), repeat: Infinity, ease: "linear" }}
+                 className="absolute w-1 h-3 bg-blue-300 rounded-full"
+               />
+            ))}
+          </div>
+        )}
         <Icon className="w-32 h-32 relative z-10 drop-shadow-2xl" strokeWidth={1.5} />
       </motion.div>
     </div>

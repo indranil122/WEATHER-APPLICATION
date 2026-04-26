@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { fetchWeather, getWeatherSummary } from './services/weatherService';
 import { WeatherData } from './types';
 import { getThemeByCode, WEATHER_THEMES } from './constants';
+import { Preloader } from './components/layout/Preloader';
 import { GlassCard } from './components/layout/GlassCard';
 import { Search } from './components/weather/Search';
 import { WeatherHero } from './components/weather/WeatherHero';
@@ -92,6 +93,7 @@ export default function App() {
       "bg-gradient-to-br",
       theme.gradient
     )}>
+      <Preloader loading={loading} />
       {/* Dynamic Background Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div 
@@ -136,18 +138,7 @@ export default function App() {
 
         <main className="flex-1 overflow-hidden relative z-10 flex flex-col">
           <AnimatePresence mode="wait">
-            {loading ? (
-              <motion.div 
-                key="loading"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex flex-1 flex-col items-center justify-center py-40"
-              >
-                <Loader2 className="w-12 h-12 text-white/50 animate-spin mb-4" />
-                <p className="text-white/60 font-light tracking-widest uppercase text-sm">Fetching Skylines...</p>
-              </motion.div>
-            ) : error ? (
+            {!loading && error ? (
               <motion.div 
                 key="error"
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -164,7 +155,7 @@ export default function App() {
                   Try London
                 </button>
               </motion.div>
-            ) : weather && (
+            ) : !loading && weather && (
               <motion.div
                 key={weather.location.name}
                 initial={{ opacity: 0 }}
