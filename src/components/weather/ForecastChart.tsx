@@ -15,8 +15,8 @@ export function ForecastChart({ weather }: ForecastChartProps) {
   })).filter((_, i) => i % 2 === 0); // Show every 2 hours for better spacing
 
   return (
-    <section className="flex-1 flex flex-col gap-3 min-h-0 mt-0 text-slate-800">
-      <div className="flex justify-between items-end px-1">
+    <section className="flex-1 flex flex-col gap-3 min-h-0 mt-2 text-slate-800 w-full px-2">
+      <div className="flex justify-between items-end">
         <h3 className="text-sm font-bold uppercase tracking-wider opacity-80">Hourly Forecast</h3>
         <span className="text-xs font-medium opacity-60">Next 24 Hours</span>
       </div>

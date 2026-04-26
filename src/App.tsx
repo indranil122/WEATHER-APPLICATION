@@ -13,6 +13,7 @@ import { AISummary } from './components/weather/AISummary';
 import { motion, AnimatePresence } from 'motion/react';
 import { Loader2, AlertCircle, Bookmark, History } from 'lucide-react';
 import { cn } from './lib/utils';
+import { TabBar, TabId } from './components/layout/TabBar';
 
 export default function App() {
   const [query, setQuery] = useState('London');
@@ -26,6 +27,7 @@ export default function App() {
     const saved = localStorage.getItem('savedCitiesV2');
     return saved ? JSON.parse(saved) : [];
   });
+  const [activeTab, setActiveTab] = useState<TabId>('home');
 
   const generateAISummary = async () => {
     if (!weather) return;
@@ -58,7 +60,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Initial load: Try geolocation, fallback to London (51.5, -0.1)
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -86,32 +87,41 @@ export default function App() {
     : WEATHER_THEMES.sunny;
 
   const currentCityName = weather?.location.name;
+  const isCitySaved = weather && savedCities.some(c => c.name === weather.location.name);
 
   return (
     <div className={cn(
-      "min-h-screen w-full transition-all duration-1000 ease-in-out font-sans text-slate-800",
+      "min-h-[100dvh] w-full transition-all duration-1000 ease-in-out font-sans text-slate-800 pb-24", // pb-24 to add space for the bottom tab bar
       theme.gradient
     )}>
       <Preloader loading={loading} />
 
-      <div className="flex flex-col gap-6 min-h-screen p-4 md:p-8 max-w-[1024px] mx-auto relative z-10">
-        <header className="flex flex-col md:flex-row justify-between items-center gap-4 min-h-[48px]">
-          <div className="flex items-center gap-3 self-start md:self-auto">
-            <div className="clay-button w-10 h-10 rounded-full flex items-center justify-center shrink-0">
-              <theme.icon className={cn("w-5 h-5", theme.accent)} />
+      <div className="flex flex-col gap-6 min-h-full p-4 md:p-8 max-w-[600px] mx-auto relative z-10 w-full">
+        <header className="flex flex-col gap-4 min-h-[48px]">
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-3 self-start md:self-auto">
+              <div className="clay-button w-10 h-10 rounded-full flex items-center justify-center shrink-0">
+                <theme.icon className={cn("w-5 h-5", theme.accent)} />
+              </div>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl font-semibold leading-tight text-slate-800">{currentCityName || 'SkyCast AI'}</h1>
+                  {weather && lastCoords && (
+                    <button 
+                      onClick={() => toggleSaveCity({ name: weather.location.name, lat: lastCoords.lat, lon: lastCoords.lon })}
+                      className="p-1.5 focus:outline-none transition-transform active:scale-90"
+                    >
+                      <Bookmark className={cn("w-4 h-4 transition-colors", isCitySaved ? "fill-blue-600 text-blue-600" : "text-slate-400 hover:text-slate-600")} />
+                    </button>
+                  )}
+                </div>
+                <p className="text-[10px] sm:text-xs text-slate-500 uppercase tracking-widest font-medium">
+                  {weather ? new Date(weather.location.localtime).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Loading...'}
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-semibold leading-tight text-slate-800">{currentCityName || 'SkyCast AI'}</h1>
-              <p className="text-xs text-slate-500 uppercase tracking-widest font-medium">
-                {weather ? new Date(weather.location.localtime).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Loading...'}
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex flex-col items-end gap-2 z-50">
-            <Search onSelect={loadWeather} isLoading={loading} />
             {savedCities.length > 0 && (
-              <div className="flex gap-2 flex-wrap justify-end overflow-x-auto pb-1 max-w-full no-scrollbar">
+              <div className="hidden sm:flex gap-2 flex-wrap justify-end overflow-x-auto pb-1 max-w-full no-scrollbar">
                 {savedCities.map(city => (
                   <button
                     key={city.name}
@@ -124,84 +134,100 @@ export default function App() {
               </div>
             )}
           </div>
+          
+          <div className="w-full z-50">
+            <Search onSelect={loadWeather} isLoading={loading} />
+          </div>
+          
+          {/* Mobile saved cities chips */}
+          {savedCities.length > 0 && (
+            <div className="flex sm:hidden gap-2 overflow-x-auto pb-2 -mx-4 px-4 w-[calc(100%+2rem)] no-scrollbar relative snap-x">
+              {savedCities.map((city, idx) => (
+                <button
+                  key={`${city.name}-${idx}`}
+                  onClick={() => loadWeather(city.lat, city.lon, city.name)}
+                  className="px-4 py-2 shrink-0 clay-button rounded-full text-slate-600 text-[11px] font-bold uppercase tracking-widest transition-all snap-start shadow-sm whitespace-nowrap"
+                >
+                  {city.name}
+                </button>
+              ))}
+            </div>
+          )}
         </header>
 
-        <main className="flex-1 overflow-hidden relative z-10 flex flex-col">
+        <main className="flex-1 overflow-visible relative z-10 flex flex-col w-full h-full relative">
           <AnimatePresence mode="wait">
             {!loading && error ? (
               <motion.div 
                 key="error"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="clay-card rounded-3xl p-12 text-center mt-20 max-w-lg mx-auto"
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="clay-card rounded-3xl p-8 sm:p-12 text-center mt-10 max-w-lg mx-auto w-full"
               >
                 <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
                 <h3 className="text-slate-800 text-xl font-bold mb-2">Something went wrong</h3>
-                <p className="text-slate-500 mb-6">{error}</p>
+                <p className="text-slate-500 mb-6 text-sm">{error}</p>
                 <button 
                   onClick={() => loadWeather(51.5074, -0.1278, 'London')}
-                  className="px-6 py-2 clay-button rounded-[24px] text-slate-700 transition-all font-semibold"
+                  className="px-6 py-2.5 clay-button rounded-[24px] text-slate-700 transition-all font-semibold uppercase tracking-wider text-xs"
                 >
                   Try London
                 </button>
               </motion.div>
             ) : !loading && weather && (
               <motion.div
-                key={weather.location.name}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.8 }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 auto-rows-min"
+                key={activeTab}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                className="w-full flex-1"
               >
-                {/* Hero Section */}
-                <GlassCard className="md:col-span-2 p-0 rounded-[32px] overflow-hidden flex items-center justify-between" delay={0.2}>
-                  <WeatherHero weather={weather} theme={theme} />
-                </GlassCard>
-
-                {/* Details Column */}
-                <div className="md:col-span-1 flex flex-col gap-6">
-                  <WeatherDetails weather={weather} />
-                  <motion.button 
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => weather && lastCoords && toggleSaveCity({ name: weather.location.name, lat: lastCoords.lat, lon: lastCoords.lon })}
-                      className={cn(
-                        "relative overflow-hidden group flex items-center justify-center gap-2 px-6 py-4 rounded-[24px] transition-all text-sm font-bold uppercase tracking-wider",
-                        savedCities.some(c => c.name === weather.location.name) 
-                          ? "clay-button text-blue-600 shadow-inner" 
-                          : "clay-button text-slate-600 hover:text-slate-800"
-                      )}
-                    >
-                      <Bookmark className={cn("w-4 h-4", savedCities.some(c => c.name === weather.location.name) && "fill-current")} />
-                      {savedCities.some(c => c.name === weather.location.name) ? 'Saved' : 'Save City'}
-                    </motion.button>
-                </div>
-
-                {/* Bottom Section */}
-                <div className="md:col-span-2">
-                    <AISummary 
-                        summary={summary} 
-                        isLoading={summaryLoading} 
-                        onGenerate={generateAISummary} 
-                    />
-                    <div className="mt-6">
+                {activeTab === 'home' && (
+                  <div className="flex flex-col gap-6 w-full">
+                    {/* Hero Section */}
+                    <GlassCard className="p-0 rounded-[32px] overflow-hidden flex items-center justify-between" delay={0.1}>
+                      <WeatherHero weather={weather} theme={theme} />
+                    </GlassCard>
+                    
+                    <div className="mt-2">
                         <ForecastChart weather={weather} />
                     </div>
-                </div>
 
-                <div className="md:col-span-1">
-                  <DailyForecast weather={weather} />
-                </div>
+                    <div className="mt-2 text-slate-800">
+                      <DailyForecast weather={weather} />
+                    </div>
+                  </div>
+                )}
+                
+                {activeTab === 'environment' && (
+                   <div className="flex flex-col gap-6 w-full fade-in">
+                     <WeatherDetails weather={weather} />
+                   </div>
+                )}
+                
+                {activeTab === 'ai' && (
+                   <div className="flex flex-col gap-6 w-full fade-in z-20 relative">
+                     <div className="w-full min-h-[400px]">
+                      <AISummary 
+                          summary={summary} 
+                          isLoading={summaryLoading} 
+                          onGenerate={generateAISummary} 
+                      />
+                     </div>
+                   </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
         </main>
 
-        <footer className="pt-4 text-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] relative z-10 border-t border-slate-300/50">
-          <p>© 2026 SkyCast AI • Powered by WeatherAPI & Gemini</p>
-        </footer>
       </div>
+      
+      {!loading && !error && (
+        <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+      )}
     </div>
   );
 }

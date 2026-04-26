@@ -36,11 +36,11 @@ export function WeatherHero({ weather, theme }: WeatherHeroProps) {
         transition={{ delay: 0.2 }}
         className="flex flex-col items-center md:items-start z-10"
       >
-        <div className="flex items-baseline gap-2 font-display">
+        <div className="flex items-start font-display justify-center md:justify-start w-full">
           <span className="text-[100px] md:text-[140px] font-bold leading-none tracking-tighter drop-shadow-sm">
-            {Math.round(current.temp_c)}°
+            {Math.round(current.temp_c)}<span className="text-8xl md:text-[110px]">°</span>
           </span>
-          <span className="text-5xl font-medium opacity-80 mb-8 tracking-normal">C</span>
+          <span className="text-4xl md:text-5xl font-medium opacity-80 mt-4 md:mt-6 tracking-normal">C</span>
         </div>
         <div className="flex flex-col gap-2 mt-2 items-center md:items-start font-sans">
           <div className="flex items-center gap-3">
