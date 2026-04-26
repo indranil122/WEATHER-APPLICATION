@@ -2,17 +2,58 @@ import { GoogleGenAI } from "@google/genai";
 import { WeatherData } from "../types";
 
 const BASE_URL = 'https://api.open-meteo.com/v1';
+const AIR_QUALITY_URL = 'https://air-quality-api.open-meteo.com/v1/air-quality';
+
+function getConditionText(code: number): string {
+  const codes: Record<number, string> = {
+    0: 'Clear Sky',
+    1: 'Mainly Clear',
+    2: 'Partly Cloudy',
+    3: 'Overcast',
+    45: 'Fog',
+    48: 'Depositing Rime Fog',
+    51: 'Light Drizzle',
+    53: 'Moderate Drizzle',
+    55: 'Dense Drizzle',
+    56: 'Light Freezing Drizzle',
+    57: 'Dense Freezing Drizzle',
+    61: 'Slight Rain',
+    63: 'Moderate Rain',
+    65: 'Heavy Rain',
+    66: 'Light Freezing Rain',
+    67: 'Heavy Freezing Rain',
+    71: 'Slight Snow Fall',
+    73: 'Moderate Snow Fall',
+    75: 'Heavy Snow Fall',
+    77: 'Snow Grains',
+    80: 'Slight Rain Showers',
+    81: 'Moderate Rain Showers',
+    82: 'Violent Rain Showers',
+    85: 'Slight Snow Showers',
+    86: 'Heavy Snow Showers',
+    95: 'Thunderstorm',
+    96: 'Thunderstorm with Slight Hail',
+    99: 'Thunderstorm with Heavy Hail',
+  };
+  return codes[code] || 'Unknown';
+}
 
 export async function fetchWeather(lat: number, lon: number): Promise<WeatherData> {
-  const response = await fetch(
-    `${BASE_URL}/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code,precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto`
-  );
+  const [weatherRes, airQualityRes] = await Promise.all([
+    fetch(
+      `${BASE_URL}/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code,precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto`
+    ),
+    fetch(
+      `${AIR_QUALITY_URL}?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,nitrogen_dioxide,ozone,us_aqi`
+    )
+  ]);
 
-  if (!response.ok) {
-    throw new Error(`Weather API error: ${response.statusText}`);
+  if (!weatherRes.ok) {
+    throw new Error(`Weather API error: ${weatherRes.statusText}`);
   }
 
-  const data = await response.json();
+  const data = await weatherRes.json();
+  const aqData = airQualityRes.ok ? await airQualityRes.json() : null;
   
   return {
     location: {
@@ -25,7 +66,7 @@ export async function fetchWeather(lat: number, lon: number): Promise<WeatherDat
       temp_c: data.current.temperature_2m,
       temp_f: (data.current.temperature_2m * 9/5) + 32,
       condition: {
-        text: 'Weather', 
+        text: getConditionText(data.current.weather_code), 
         icon: '',
         code: data.current.weather_code,
       },
@@ -35,11 +76,11 @@ export async function fetchWeather(lat: number, lon: number): Promise<WeatherDat
       feelslike_f: (data.current.apparent_temperature * 9/5) + 32,
       uv: 0, 
       air_quality: {
-        "us-epa-index": 1, 
-        pm2_5: 0,
-        pm10: 0,
-        no2: 0,
-        o3: 0,
+        "us-epa-index": aqData?.current?.us_aqi ? Math.ceil(aqData.current.us_aqi / 50) : 1, // Simplified mapping to 1-6 if needed, or use as is
+        pm2_5: aqData?.current?.pm2_5 || 0,
+        pm10: aqData?.current?.pm10 || 0,
+        no2: aqData?.current?.nitrogen_dioxide || 0,
+        o3: aqData?.current?.ozone || 0,
       },
     },
     forecast: {
@@ -48,7 +89,11 @@ export async function fetchWeather(lat: number, lon: number): Promise<WeatherDat
             day: {
                 maxtemp_c: data.daily.temperature_2m_max[i],
                 mintemp_c: data.daily.temperature_2m_min[i],
-                condition: { text: 'Weather', icon: '', code: data.daily.weather_code[i] }
+                condition: { 
+                  text: getConditionText(data.daily.weather_code[i]), 
+                  icon: '', 
+                  code: data.daily.weather_code[i] 
+                }
             },
             astro: {
                 sunrise: data.daily.sunrise[i],

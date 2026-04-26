@@ -26,20 +26,28 @@ export default function App() {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const generateAISummary = async () => {
+    if (!weather) return;
+    try {
+      setSummaryLoading(true);
+      const aiSummary = await getWeatherSummary(weather);
+      setSummary(aiSummary);
+    } catch (err) {
+      console.error("AI Summary error:", err);
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
   const loadWeather = useCallback(async (lat: number, lon: number, name: string) => {
     try {
       setLoading(true);
       setError(null);
+      setSummary(''); // Clear previous summary
       const data = await fetchWeather(lat, lon);
       data.location.name = name; // Update name
       setWeather(data);
       setLastCoords({lat, lon, name});
-      
-      // Auto-generate summary
-      setSummaryLoading(true);
-      const aiSummary = await getWeatherSummary(data);
-      setSummary(aiSummary);
-      setSummaryLoading(false);
     } catch (err: any) {
       setError(err.message || 'Failed to load weather data.');
       console.error(err);
@@ -192,7 +200,7 @@ export default function App() {
                     <AISummary 
                         summary={summary} 
                         isLoading={summaryLoading} 
-                        onRefresh={() => lastCoords && loadWeather(lastCoords.lat, lastCoords.lon, lastCoords.name)} 
+                        onGenerate={generateAISummary} 
                     />
                     <div className="mt-6">
                         <ForecastChart weather={weather} />
