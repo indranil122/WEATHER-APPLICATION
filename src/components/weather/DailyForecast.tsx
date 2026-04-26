@@ -3,6 +3,7 @@ import { GlassCard } from '../layout/GlassCard';
 import { format } from 'date-fns';
 import { CloudRain } from 'lucide-react';
 import { getThemeByCode } from '../../constants';
+import { cn } from '../../lib/utils';
 
 interface DailyForecastProps {
   weather: WeatherData;
@@ -16,9 +17,9 @@ export function DailyForecast({ weather }: DailyForecastProps) {
   const range = maxTemp - minTemp;
 
   return (
-    <GlassCard className="flex-1 flex flex-col p-6 h-full mt-0 rounded-[32px]" delay={0.5}>
-      <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] mb-6 opacity-60 flex items-center gap-2">
-        <span className="w-2 h-2 rounded-full bg-white/40" />
+    <GlassCard className="flex-1 flex flex-col p-6 h-full mt-0 rounded-[32px] text-slate-800" delay={0.5}>
+      <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] mb-6 text-slate-500 flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-slate-300" />
         7-Day Forecast
       </h3>
       
@@ -40,18 +41,18 @@ export function DailyForecast({ weather }: DailyForecastProps) {
           return (
             <div 
               key={day.date} 
-              className="group flex items-center gap-4 hover:bg-white/10 p-3 -mx-3 rounded-2xl transition-colors cursor-default"
+              className="group flex items-center gap-4 hover:bg-white/40 p-3 -mx-3 rounded-2xl transition-colors cursor-default"
             >
               <div className="w-12 shrink-0">
-                <span className="text-[14px] font-semibold opacity-90">{index === 0 ? 'Today' : format(new Date(day.date), 'EEE')}</span>
+                <span className="text-[14px] font-semibold text-slate-700">{index === 0 ? 'Today' : format(new Date(day.date), 'EEE')}</span>
               </div>
 
               <div className="flex items-center gap-1 w-16 shrink-0 text-center">
                 <div className="relative mx-auto">
-                    <Icon className="w-6 h-6 text-white drop-shadow-sm group-hover:scale-110 group-hover:-translate-y-0.5 transition-transform duration-300" strokeWidth={1.5} />
+                    <Icon className={cn("w-6 h-6 group-hover:scale-110 group-hover:-translate-y-0.5 transition-transform duration-300", theme.accent)} strokeWidth={1.5} />
                 </div>
                 {rainChance > 20 && (
-                    <div className="flex items-center gap-0.5 text-[10px] font-bold text-sky-300/90 ml-1">
+                    <div className="flex items-center gap-0.5 text-[10px] font-bold text-sky-500 ml-1">
                         <CloudRain className="w-2.5 h-2.5" />
                         {rainChance}%
                     </div>
@@ -59,17 +60,17 @@ export function DailyForecast({ weather }: DailyForecastProps) {
               </div>
 
               <div className="flex items-center gap-3 flex-1">
-                <span className="text-sm font-semibold opacity-50 w-8 text-right">{Math.round(dayMin)}°</span>
-                <div className="relative h-1.5 flex-1 bg-black/20 rounded-full overflow-hidden shadow-inner">
+                <span className="text-sm font-semibold text-slate-400 w-8 text-right">{Math.round(dayMin)}°</span>
+                <div className="relative h-1.5 flex-1 bg-[#d1d9e6] rounded-full overflow-hidden shadow-inner">
                   <div 
-                    className="absolute h-full bg-gradient-to-r from-sky-400 via-emerald-400 to-orange-500 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.3)] opacity-90 group-hover:opacity-100 transition-all duration-300"
+                    className="absolute h-full bg-gradient-to-r from-sky-400 via-emerald-400 to-amber-400 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)] opacity-90 group-hover:opacity-100 transition-all duration-300"
                     style={{ 
                         left: `${leftPos}%`, 
                         width: `${widthPos}%` 
                     }}
                   />
                 </div>
-                <span className="text-sm font-bold w-10 text-left">{Math.round(dayMax)}°</span>
+                <span className="text-sm font-bold text-slate-700 w-10 text-left">{Math.round(dayMax)}°</span>
               </div>
             </div>
           );

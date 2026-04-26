@@ -72,32 +72,32 @@ export function Search({ onSelect, isLoading }: SearchProps) {
   };
 
   return (
-    <div className="relative w-full max-w-md mx-auto z-50" ref={containerRef}>
-      <div className="relative group bg-[#ffffff26] backdrop-blur-md md:backdrop-blur-xl border border-[#ffffff40] rounded-[24px] flex items-center px-4 py-2 w-72 h-12 shadow-sm transition-all duration-300">
-        <SearchIcon className="text-white/60 w-4 h-4 shrink-0" />
+    <div className="relative w-full max-w-md mx-auto z-50 text-slate-800" ref={containerRef}>
+      <div className="relative group clay-inset rounded-[24px] flex items-center px-4 py-2 w-72 h-12 transition-all duration-300">
+        <SearchIcon className="text-slate-400 w-4 h-4 shrink-0" />
         <input
           ref={inputRef}
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search city..."
-          className="bg-transparent border-none outline-none ml-3 text-sm placeholder:text-white/60 w-full text-white"
+          className="bg-transparent border-none outline-none ml-3 text-sm placeholder:text-slate-400 w-full text-slate-800"
           onFocus={() => setShowSuggestions(true)}
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
           {isSearching ? (
-            <Loader2 className="w-5 h-5 text-white/50 animate-spin" />
+            <Loader2 className="w-5 h-5 text-slate-400 animate-spin" />
           ) : query ? (
             <button 
               onClick={() => { setQuery(''); inputRef.current?.focus(); }} 
-              className="p-1 hover:bg-white/10 rounded-full text-white/70"
+              className="p-1 hover:bg-slate-200 rounded-full text-slate-500"
             >
               <X className="w-5 h-5" />
             </button>
           ) : (
             <button 
               onClick={handleGetCurrentLocation}
-              className="p-2 hover:bg-white/10 rounded-full text-white/70 transition-colors"
+              className="p-2 hover:bg-slate-200 rounded-full text-slate-500 transition-colors"
               title="Use current location"
             >
               <MapPin className="w-5 h-5" />
@@ -112,7 +112,7 @@ export function Search({ onSelect, isLoading }: SearchProps) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl overflow-hidden border border-white/50 max-h-[300px] overflow-y-auto"
+            className="absolute top-full left-0 right-0 mt-3 clay-card border-none overflow-hidden max-h-[300px] overflow-y-auto"
           >
             {/* Current Location Option */}
             <button

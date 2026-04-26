@@ -89,42 +89,20 @@ export default function App() {
 
   return (
     <div className={cn(
-      "min-h-screen w-full transition-all duration-1000 ease-in-out font-sans",
-      "bg-gradient-to-br",
+      "min-h-screen w-full transition-all duration-1000 ease-in-out font-sans text-slate-800",
       theme.gradient
     )}>
       <Preloader loading={loading} />
-      {/* Dynamic Background Elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden noise-bg z-0">
-        <motion.div 
-          animate={{ 
-            rotate: 360, 
-            scale: [1, 1.1, 1],
-            opacity: [0.3, 0.5, 0.3] 
-          }}
-          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-1/4 -left-1/4 w-[80%] h-[80%] bg-white/20 blur-[100px] md:blur-[140px] rounded-full mix-blend-overlay" 
-        />
-        <motion.div 
-          animate={{ 
-            rotate: -360, 
-            scale: [1, 1.2, 1],
-            opacity: [0.2, 0.4, 0.2]
-          }}
-          transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
-          className="absolute -bottom-1/4 -right-1/4 w-[70%] h-[70%] bg-blue-400/20 blur-[120px] md:blur-[160px] rounded-full" 
-        />
-      </div>
 
-      <div className="flex flex-col gap-6 min-h-screen p-4 md:p-8 max-w-[1024px] mx-auto relative z-10 text-white">
+      <div className="flex flex-col gap-6 min-h-screen p-4 md:p-8 max-w-[1024px] mx-auto relative z-10">
         <header className="flex flex-col md:flex-row justify-between items-center gap-4 min-h-[48px]">
           <div className="flex items-center gap-3 self-start md:self-auto">
-            <div className="bg-[#ffffff33] w-10 h-10 rounded-full flex items-center justify-center shrink-0">
-              <theme.icon className="text-white w-5 h-5" />
+            <div className="clay-button w-10 h-10 rounded-full flex items-center justify-center shrink-0">
+              <theme.icon className={cn("w-5 h-5", theme.accent)} />
             </div>
             <div>
-              <h1 className="text-xl font-semibold leading-tight">{currentCityName || 'SkyCast AI'}</h1>
-              <p className="text-xs opacity-75 uppercase tracking-widest font-medium">
+              <h1 className="text-xl font-semibold leading-tight text-slate-800">{currentCityName || 'SkyCast AI'}</h1>
+              <p className="text-xs text-slate-500 uppercase tracking-widest font-medium">
                 {weather ? new Date(weather.location.localtime).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Loading...'}
               </p>
             </div>
@@ -138,7 +116,7 @@ export default function App() {
                   <button
                     key={city.name}
                     onClick={() => loadWeather(city.lat, city.lon, city.name)}
-                    className="px-2 py-0.5 bg-[#ffffff26] hover:bg-[#ffffff40] backdrop-blur-md rounded-full text-white text-[10px] font-bold uppercase tracking-wider border border-[#ffffff40] transition-all"
+                    className="px-3 py-1 clay-button rounded-full text-slate-600 text-[10px] font-bold uppercase tracking-wider transition-all"
                   >
                     {city.name}
                   </button>
@@ -155,14 +133,14 @@ export default function App() {
                 key="error"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-red-500/10 backdrop-blur-xl border border-red-500/20 rounded-3xl p-12 text-center mt-20 max-w-lg mx-auto"
+                className="clay-card rounded-3xl p-12 text-center mt-20 max-w-lg mx-auto"
               >
-                <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-                <h3 className="text-white text-xl font-bold mb-2">Something went wrong</h3>
-                <p className="text-white/60 mb-6">{error}</p>
+                <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+                <h3 className="text-slate-800 text-xl font-bold mb-2">Something went wrong</h3>
+                <p className="text-slate-500 mb-6">{error}</p>
                 <button 
                   onClick={() => loadWeather(51.5074, -0.1278, 'London')}
-                  className="px-6 py-2 bg-[#ffffff26] hover:bg-[#ffffff40] rounded-[24px] text-white transition-all border border-[#ffffff40]"
+                  className="px-6 py-2 clay-button rounded-[24px] text-slate-700 transition-all font-semibold"
                 >
                   Try London
                 </button>
@@ -189,13 +167,12 @@ export default function App() {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => weather && lastCoords && toggleSaveCity({ name: weather.location.name, lat: lastCoords.lat, lon: lastCoords.lon })}
                       className={cn(
-                        "relative overflow-hidden group flex items-center justify-center gap-2 px-6 py-4 rounded-[24px] transition-all border text-sm font-bold uppercase tracking-wider",
+                        "relative overflow-hidden group flex items-center justify-center gap-2 px-6 py-4 rounded-[24px] transition-all text-sm font-bold uppercase tracking-wider",
                         savedCities.some(c => c.name === weather.location.name) 
-                          ? "bg-white text-blue-600 border-white shadow-[0_0_20px_rgba(255,255,255,0.4)]" 
-                          : "bg-[#ffffff1a] text-white border-white/20 hover:bg-[#ffffff26] hover:border-white/40 shadow-lg"
+                          ? "clay-button text-blue-600 shadow-inner" 
+                          : "clay-button text-slate-600 hover:text-slate-800"
                       )}
                     >
-                      <div className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500 rounded-[24px] opacity-20" />
                       <Bookmark className={cn("w-4 h-4", savedCities.some(c => c.name === weather.location.name) && "fill-current")} />
                       {savedCities.some(c => c.name === weather.location.name) ? 'Saved' : 'Save City'}
                     </motion.button>
@@ -221,7 +198,7 @@ export default function App() {
           </AnimatePresence>
         </main>
 
-        <footer className="pt-4 text-center text-white/30 text-[10px] font-bold uppercase tracking-[0.2em] relative z-10 border-t border-white/10">
+        <footer className="pt-4 text-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] relative z-10 border-t border-slate-300/50">
           <p>© 2026 SkyCast AI • Powered by WeatherAPI & Gemini</p>
         </footer>
       </div>
