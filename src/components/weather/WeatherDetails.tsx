@@ -1,6 +1,7 @@
 import { Wind, Droplets, Sun, WindIcon, Sunrise, Sunset, Microscope, Activity, Navigation, Cloud } from 'lucide-react';
 import { WeatherData } from '../../types';
 import { GlassCard } from '../layout/GlassCard';
+import { cn } from '../../lib/utils';
 
 interface WeatherDetailsProps {
   weather: WeatherData;
@@ -27,30 +28,53 @@ export function WeatherDetails({ weather }: WeatherDetailsProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4 h-full font-sans text-slate-800">
+    <div className="flex flex-col gap-5 h-full font-sans text-slate-800">
       
-      {/* BIG CARD: AQI & Pollutants */}
-      <GlassCard delay={0.1} className="p-5 flex flex-col group">
-        <div className="flex items-center gap-1.5 opacity-60 mb-4 text-slate-500">
-          <WindIcon className="w-3.5 h-3.5" />
-          <p className="text-[11px] uppercase font-bold tracking-widest">Air Quality</p>
-        </div>
-        <div className="flex items-center gap-4 mb-5">
-          <div className={`w-2.5 h-10 rounded-full ${getAQIColor(aq["us-epa-index"])} shadow-inner`} />
-          <div>
-            <p className="text-2xl font-bold leading-tight tracking-tight text-slate-800">{getAQIStatus(aq["us-epa-index"])}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">Targeting US EPA Index {aq["us-epa-index"]}</p>
+      {/* MINIMALISTIC AIR QUALITY */}
+      <div className="px-1">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Air Quality</span>
+            <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", getAQIColor(aq["us-epa-index"]))} />
           </div>
+          <span className="text-[10px] font-bold text-slate-400 font-mono">[{aq["us-epa-index"]}/6]</span>
         </div>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-2 pt-4 border-t border-slate-300/50">
-          {pollutantLabels.map((p) => (
-            <div key={p.label} className="flex flex-col gap-1">
-               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{p.label}</span>
-               <span className="text-sm font-semibold text-slate-700">{p.value}<span className="text-[9px] text-slate-400 ml-0.5 font-normal">{p.unit}</span></span>
-            </div>
+        
+        <div className="mb-6 h-1 w-full bg-slate-100/50 rounded-full flex gap-1">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div 
+              key={i} 
+              className={cn(
+                "h-full flex-1 rounded-full transition-all duration-500",
+                i <= aq["us-epa-index"] ? getAQIColor(aq["us-epa-index"]) : "bg-slate-200/30"
+              )}
+            />
           ))}
         </div>
-      </GlassCard>
+
+        <div className="flex items-end justify-between">
+          <div className="flex flex-col">
+            <h3 className="text-2xl font-bold tracking-tight text-slate-800 leading-none">
+              {getAQIStatus(aq["us-epa-index"])}
+            </h3>
+            <p className="text-[10px] text-slate-400 mt-2 font-medium uppercase tracking-wider">Pollution Status</p>
+          </div>
+          
+          <div className="flex gap-6">
+            {pollutantLabels.map((p) => (
+              <div key={p.label} className="flex flex-col items-end">
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{p.label}</span>
+                <div className="flex items-baseline gap-1 mt-0.5">
+                  <span className="text-sm font-bold text-slate-700">{p.value}</span>
+                  <span className="text-[8px] text-slate-400 font-bold uppercase">{p.unit.split('/')[0]}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="h-[1px] w-full bg-slate-200/50 my-1" />
 
       {/* MEDIUM CARDS: Grid for Wind, Humidity */}
       <div className="grid grid-cols-2 gap-4">

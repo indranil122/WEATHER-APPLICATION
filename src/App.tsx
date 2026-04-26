@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchWeather, getWeatherSummary } from './services/weatherService';
+import { fetchWeather } from './services/weatherService';
 import { WeatherData } from './types';
 import { getThemeByCode, WEATHER_THEMES } from './constants';
 import { Preloader } from './components/layout/Preloader';
@@ -9,7 +9,6 @@ import { WeatherHero } from './components/weather/WeatherHero';
 import { WeatherDetails } from './components/weather/WeatherDetails';
 import { ForecastChart } from './components/weather/ForecastChart';
 import { DailyForecast } from './components/weather/DailyForecast';
-import { AISummary } from './components/weather/AISummary';
 import { motion, AnimatePresence } from 'motion/react';
 import { Loader2, AlertCircle, Bookmark, History } from 'lucide-react';
 import { cn } from './lib/utils';
@@ -20,31 +19,15 @@ export default function App() {
   const [lastCoords, setLastCoords] = useState<{lat: number, lon: number, name: string} | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [summary, setSummary] = useState('');
-  const [summaryLoading, setSummaryLoading] = useState(false);
   const [savedCities, setSavedCities] = useState<{name: string, lat: number, lon: number}[]>(() => {
     const saved = localStorage.getItem('savedCitiesV2');
     return saved ? JSON.parse(saved) : [];
   });
 
-  const generateAISummary = async () => {
-    if (!weather) return;
-    try {
-      setSummaryLoading(true);
-      const aiSummary = await getWeatherSummary(weather);
-      setSummary(aiSummary);
-    } catch (err) {
-      console.error("AI Summary error:", err);
-    } finally {
-      setSummaryLoading(false);
-    }
-  };
-
   const loadWeather = useCallback(async (lat: number, lon: number, name?: string) => {
     try {
       setLoading(true);
       setError(null);
-      setSummary(''); // Clear previous summary
       const data = await fetchWeather(lat, lon);
       if (name) {
         data.location.name = name; // Update name only if specifically provided for search
@@ -193,16 +176,8 @@ export default function App() {
                     <ForecastChart weather={weather} />
                 </div>
 
-                <div className="flex flex-col gap-6 w-full">
+                <div className="flex flex-col gap-6 w-full pb-8">
                   <WeatherDetails weather={weather} />
-                </div>
-                
-                <div className="w-full min-h-[400px] z-20 relative">
-                  <AISummary 
-                      summary={summary} 
-                      isLoading={summaryLoading} 
-                      onGenerate={generateAISummary} 
-                  />
                 </div>
               </motion.div>
             )}

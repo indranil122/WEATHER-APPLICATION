@@ -67,55 +67,50 @@ export function Search({ onSelect, isLoading }: SearchProps) {
   };
 
   return (
-    <>
-      <button 
+    <div className="relative flex flex-col items-center">
+      <motion.button 
+        layoutId="search-pill"
         onClick={() => setIsExpanded(true)}
-        className="w-full flex items-center justify-between px-5 py-3.5 bg-white/60 backdrop-blur-[40px] backdrop-saturate-[180%] border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_1px_1px_rgba(255,255,255,0.8)] rounded-full text-slate-700 hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] transition-all font-medium group"
+        className="flex items-center gap-2.5 px-4 py-2 bg-white/80 backdrop-blur-xl border border-white/40 shadow-[0_4px_20px_rgba(0,0,0,0.1)] rounded-full text-slate-700 hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all group"
       >
-        <div className="flex items-center gap-3 text-slate-500 group-hover:text-slate-700 transition-colors mx-auto">
-          <SearchIcon className="w-5 h-5" />
-          <span className="font-bold">Search city...</span>
-        </div>
-      </button>
+        <SearchIcon className="w-4 h-4 text-slate-500 group-hover:text-slate-800 transition-colors" />
+        <span className="font-bold text-[13px] tracking-tight">Search</span>
+      </motion.button>
 
       <AnimatePresence>
         {isExpanded && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[200] bg-black/20 backdrop-blur-xl p-4 md:p-8 flex flex-col items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-white/20 backdrop-blur-2xl flex flex-col items-center"
           >
             {/* Click outside to close */}
             <div className="absolute inset-0" onClick={() => setIsExpanded(false)} />
             
-            <div className="relative w-full max-w-md mx-auto z-10 flex flex-col gap-4 mt-8 md:mt-16">
+            <motion.div 
+              layoutId="search-pill"
+              className="relative w-full max-w-[90%] md:max-w-md mx-auto z-10 flex flex-col mt-32 bg-white/95 backdrop-blur-xl rounded-[28px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-white/50 overflow-hidden"
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            >
               {/* Input Container */}
-              <div className="relative group bg-white/90 backdrop-blur-md rounded-[24px] flex items-center px-4 py-2 w-full h-14 shadow-2xl ring-1 ring-black/5">
+              <div className="relative flex items-center px-5 py-4 w-full h-16 border-b border-slate-100">
                 <SearchIcon className="text-slate-400 w-5 h-5 shrink-0" />
                 <input
                   ref={inputRef}
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search city..."
-                  className="bg-transparent border-none outline-none ml-3 text-base placeholder:text-slate-400 w-full text-slate-800"
+                  placeholder="Where to?"
+                  className="bg-transparent border-none outline-none ml-3 text-lg placeholder:text-slate-400 w-full text-slate-800 font-medium"
                 />
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                <div className="flex items-center gap-1">
                   {isSearching ? (
                     <Loader2 className="w-5 h-5 text-slate-400 animate-spin" />
-                  ) : query ? (
-                    <button 
-                      onClick={() => { setQuery(''); inputRef.current?.focus(); }} 
-                      className="p-1.5 hover:bg-slate-200 rounded-full text-slate-500 transition-colors"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
                   ) : (
                     <button 
                       onClick={() => setIsExpanded(false)} 
-                      className="p-1.5 hover:bg-slate-200 rounded-full text-slate-500 transition-colors"
+                      className="p-1.5 hover:bg-slate-100 rounded-full text-slate-500 transition-colors"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -124,17 +119,17 @@ export function Search({ onSelect, isLoading }: SearchProps) {
               </div>
 
               {/* Suggestions Box */}
-              <div className="bg-white/90 backdrop-blur-md rounded-[24px] overflow-hidden shadow-2xl ring-1 ring-black/5 flex flex-col max-h-[60vh] overflow-y-auto">
+              <div className="flex flex-col max-h-[60vh] overflow-y-auto no-scrollbar">
                 <button
                   onClick={handleGetCurrentLocation}
-                  className="w-full flex items-center gap-4 px-5 py-4 hover:bg-blue-50/50 text-left transition-colors border-b border-black/5"
+                  className="w-full flex items-center gap-4 px-6 py-4 hover:bg-slate-50 text-left transition-colors border-b border-slate-50"
                 >
-                  <div className="p-2.5 bg-blue-100 rounded-xl">
-                    <MapPin className="w-5 h-5 text-blue-600" />
+                  <div className="p-2 bg-blue-50 rounded-lg">
+                    <MapPin className="w-5 h-5 text-blue-500" />
                   </div>
                   <div>
-                    <p className="font-semibold text-slate-900 text-sm">Use Current Location</p>
-                    <p className="text-xs text-slate-500">Enable GPS for precision</p>
+                    <p className="font-bold text-slate-800 text-sm">Near Me</p>
+                    <p className="text-[11px] text-slate-500 font-medium">Use current location</p>
                   </div>
                 </button>
 
@@ -142,31 +137,33 @@ export function Search({ onSelect, isLoading }: SearchProps) {
                   <button
                     key={city.id}
                     onClick={() => handleSelect(city)}
-                    className="w-full flex items-center gap-4 px-5 py-4 hover:bg-black/5 text-left transition-colors border-b border-black/5 last:border-0"
+                    className="w-full flex items-center gap-4 px-6 py-4 hover:bg-slate-50 text-left transition-colors border-b border-slate-50 last:border-0"
                   >
-                    <div className="p-2.5 bg-slate-100 rounded-xl">
-                      <SearchIcon className="w-5 h-5 text-slate-600" />
+                    <div className="p-2 bg-slate-100 rounded-lg">
+                      <SearchIcon className="w-4 h-4 text-slate-500" />
                     </div>
-                    <div>
-                      <p className="font-semibold text-slate-900 text-sm">{city.name}</p>
-                      <p className="text-xs text-slate-500">
-                        {city.region ? `${city.region}, ` : ''}{city.country}
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="font-bold text-slate-800 text-sm">{city.name}</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{city.country}</p>
+                      </div>
+                      <p className="text-[11px] text-slate-500 font-medium">
+                        {city.region && `${city.region}`}
                       </p>
                     </div>
                   </button>
                 ))}
                 
                 {query.trim().length >= 2 && suggestions.length === 0 && !isSearching && (
-                  <div className="px-4 py-8 text-center text-slate-400">
-                    <SearchIcon className="w-8 h-8 mx-auto mb-2 opacity-20" />
-                    <p className="text-sm">No cities found matching "{query}"</p>
+                  <div className="px-6 py-10 text-center">
+                    <p className="text-sm font-medium text-slate-400 italic">No matches for "{query}"</p>
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }
