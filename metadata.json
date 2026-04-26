@@ -1,0 +1,6 @@
+{
+  "name": "SkyCast AI",
+  "description": "A visually stunning weather dashboard featuring Material You design, dynamic theming, and AI-powered weather insights.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["Weather Data", "AI Summarization", "Dynamic UI"]
+}
