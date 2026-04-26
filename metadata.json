@@ -1,6 +1,6 @@
 {
-  "name": "SkyCast AI",
-  "description": "A visually stunning weather dashboard featuring Material You design, dynamic theming, and AI-powered weather insights.",
+  "name": "Skylines",
+  "description": "A visually stunning weather dashboard featuring glassmorphism design, dynamic animations, immersive preloader, and detailed weather insights.",
   "requestFramePermissions": ["geolocation"],
-  "majorCapabilities": ["Weather Data", "AI Summarization", "Dynamic UI"]
+  "majorCapabilities": ["Weather Data", "Preloader", "Dynamic UI"]
 }
