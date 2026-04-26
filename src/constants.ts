@@ -11,51 +11,51 @@ export type WeatherTheme = {
 export const WEATHER_THEMES: Record<string, WeatherTheme> = {
   sunny: {
     name: 'Sunny',
-    gradient: 'bg-[#eef2f6]', // Soft global bg
+    gradient: 'bg-transparent', // Soft global bg
     accent: 'text-amber-500',
-    text: 'text-slate-800',
+    text: 'text-slate-800 dark:text-slate-200',
     icon: Sun,
   },
   cloudy: {
     name: 'Cloudy',
-    gradient: 'bg-[#eef2f6]',
+    gradient: 'bg-transparent',
     accent: 'text-slate-500',
-    text: 'text-slate-800',
+    text: 'text-slate-800 dark:text-slate-200',
     icon: Cloud,
   },
   rainy: {
     name: 'Rainy',
-    gradient: 'bg-[#eef2f6]',
+    gradient: 'bg-transparent',
     accent: 'text-sky-500',
-    text: 'text-slate-800',
+    text: 'text-slate-800 dark:text-slate-200',
     icon: CloudRain,
   },
   stormy: {
     name: 'Stormy',
-    gradient: 'bg-[#eef2f6]',
-    accent: 'text-indigo-600',
-    text: 'text-slate-800',
+    gradient: 'bg-transparent',
+    accent: 'text-indigo-600 dark:text-indigo-400',
+    text: 'text-slate-800 dark:text-slate-200',
     icon: CloudLightning,
   },
   snowy: {
     name: 'Snowy',
-    gradient: 'bg-[#eef2f6]',
-    accent: 'text-cyan-600',
-    text: 'text-slate-800',
+    gradient: 'bg-transparent',
+    accent: 'text-cyan-600 dark:text-cyan-400',
+    text: 'text-slate-800 dark:text-slate-200',
     icon: CloudSnow,
   },
   foggy: {
     name: 'Foggy',
-    gradient: 'bg-[#eef2f6]',
+    gradient: 'bg-transparent',
     accent: 'text-gray-400',
-    text: 'text-slate-800',
+    text: 'text-slate-800 dark:text-slate-200',
     icon: CloudFog,
   },
   night: {
     name: 'Clear Night',
-    gradient: 'bg-[#eef2f6]',
-    accent: 'text-indigo-900',
-    text: 'text-slate-800',
+    gradient: 'bg-transparent',
+    accent: 'text-indigo-900 dark:text-indigo-300',
+    text: 'text-slate-800 dark:text-slate-200',
     icon: SunDim,
   }
 };

@@ -10,7 +10,7 @@ import { WeatherDetails } from './components/weather/WeatherDetails';
 import { ForecastChart } from './components/weather/ForecastChart';
 import { DailyForecast } from './components/weather/DailyForecast';
 import { motion, AnimatePresence } from 'motion/react';
-import { Loader2, AlertCircle, Bookmark, History } from 'lucide-react';
+import { Loader2, AlertCircle, Bookmark, History, Moon, Sun } from 'lucide-react';
 import { cn } from './lib/utils';
 
 export default function App() {
@@ -23,6 +23,37 @@ export default function App() {
     const saved = localStorage.getItem('savedCitiesV2');
     return saved ? JSON.parse(saved) : [];
   });
+
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem('theme') === 'dark';
+  });
+  const [reveal, setReveal] = useState<{ x: number, y: number, active: boolean }>({ x: 0, y: 0, active: false });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+  }, [isDarkMode]);
+
+  const toggleDarkMode = (e: React.MouseEvent) => {
+    const x = e.clientX;
+    const y = e.clientY;
+    
+    setReveal({ x, y, active: true });
+    
+    // Toggle theme after a small delay to match animation start
+    setTimeout(() => {
+      setIsDarkMode(!isDarkMode);
+    }, 150);
+
+    // Reset reveal state after animation
+    setTimeout(() => {
+      setReveal(prev => ({ ...prev, active: false }));
+    }, 1000);
+  };
 
   const loadWeather = useCallback(async (lat: number, lon: number, name?: string) => {
     try {
@@ -74,13 +105,33 @@ export default function App() {
 
   return (
     <div className={cn(
-      "min-h-[100dvh] w-full transition-all duration-1000 ease-in-out font-sans text-slate-800 pb-24", // pb-24 to add space for the bottom tab bar
+      "min-h-[100dvh] w-full transition-all duration-1000 ease-in-out font-sans text-slate-800 dark:text-slate-100 pb-24", // pb-24 to add space for the bottom tab bar
       theme.gradient
     )}>
+      {/* Reveal Overlay */}
+      {reveal.active && (
+        <div 
+          className="reveal-circle reveal-active"
+          style={{ 
+            left: reveal.x, 
+            top: reveal.y,
+            backgroundColor: isDarkMode ? '#f8fafc' : '#020617' 
+          }} 
+        />
+      )}
+      
       <Preloader loading={loading} />
 
       <div className="flex flex-col gap-6 min-h-full p-4 md:p-8 max-w-[600px] mx-auto relative z-10 w-full">
-        <header className="flex flex-col gap-4 min-h-[48px] items-center text-center">
+        <header className="flex flex-col gap-4 min-h-[48px] items-center text-center relative w-full pt-2">
+          {/* Theme Toggle Widget */}
+          <button
+             onClick={toggleDarkMode}
+             className="absolute top-0 right-0 p-3 rounded-full clay-button hover:scale-110 active:scale-95 transition-all text-slate-600 dark:text-slate-300 z-[100]"
+          >
+             {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
+          
           <div className="flex flex-col items-center justify-center w-full">
             <div className="flex flex-col items-center gap-3">
               <div className="clay-button w-10 h-10 rounded-full flex items-center justify-center shrink-0">
@@ -88,17 +139,17 @@ export default function App() {
               </div>
               <div className="flex flex-col items-center">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-xl font-semibold leading-tight text-slate-800">{currentCityName || 'SkyCast AI'}</h1>
+                  <h1 className="text-xl font-semibold leading-tight text-slate-800 dark:text-slate-100">{currentCityName || 'SkyCast AI'}</h1>
                   {weather && lastCoords && (
                     <button 
                       onClick={() => toggleSaveCity({ name: weather.location.name, lat: lastCoords.lat, lon: lastCoords.lon })}
                       className="p-1.5 focus:outline-none transition-transform active:scale-90"
                     >
-                      <Bookmark className={cn("w-4 h-4 transition-colors", isCitySaved ? "fill-blue-600 text-blue-600" : "text-slate-400 hover:text-slate-600")} />
+                      <Bookmark className={cn("w-4 h-4 transition-colors", isCitySaved ? "fill-blue-600 text-blue-600" : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300")} />
                     </button>
                   )}
                 </div>
-                <p className="text-[10px] sm:text-xs text-slate-500 uppercase tracking-widest font-medium">
+                <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest font-medium">
                   {weather ? new Date(weather.location.localtime).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Loading...'}
                 </p>
               </div>
@@ -109,7 +160,7 @@ export default function App() {
                   <button
                     key={city.name}
                     onClick={() => loadWeather(city.lat, city.lon, city.name)}
-                    className="px-3 py-1 clay-button rounded-full text-slate-600 text-[10px] font-bold uppercase tracking-wider transition-all"
+                    className="px-3 py-1 clay-button rounded-full text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider transition-all"
                   >
                     {city.name}
                   </button>
@@ -125,7 +176,7 @@ export default function App() {
                 <button
                   key={`${city.name}-${idx}`}
                   onClick={() => loadWeather(city.lat, city.lon, city.name)}
-                  className="px-4 py-2 shrink-0 clay-button rounded-full text-slate-600 text-[11px] font-bold uppercase tracking-widest transition-all snap-start shadow-sm whitespace-nowrap"
+                  className="px-4 py-2 shrink-0 clay-button rounded-full text-slate-600 dark:text-slate-300 text-[11px] font-bold uppercase tracking-widest transition-all snap-start shadow-sm whitespace-nowrap"
                 >
                   {city.name}
                 </button>

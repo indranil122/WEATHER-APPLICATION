@@ -40,7 +40,7 @@ export function DailyForecast({ weather }: DailyForecastProps) {
               className="group flex items-center justify-between gap-4 py-3 border-b border-slate-100/30 last:border-0"
             >
               <div className="w-[15%] flex flex-col">
-                <span className="text-[13px] font-bold text-slate-800">
+                <span className="text-[13px] font-bold text-slate-800 dark:text-slate-100">
                   {index === 0 ? 'Today' : format(new Date(day.date), 'EEE')}
                 </span>
                 <span className="text-[10px] font-bold text-slate-400 uppercase">
@@ -59,9 +59,9 @@ export function DailyForecast({ weather }: DailyForecastProps) {
 
               <div className="flex-1 flex items-center gap-3">
                 <span className="text-[12px] font-bold text-slate-400 w-8 text-right">{Math.round(dayMin)}°</span>
-                <div className="relative h-1 flex-1 bg-slate-100 rounded-full">
+                <div className="relative h-1 flex-1 bg-slate-100 dark:bg-slate-800/50 rounded-full">
                   <div 
-                    className="absolute h-full bg-slate-800 rounded-full transition-all duration-500"
+                    className="absolute h-full bg-slate-800 dark:bg-slate-300 rounded-full transition-all duration-500"
                     style={{ 
                         left: `${leftPos}%`, 
                         width: `${widthPos}%` 
@@ -70,7 +70,7 @@ export function DailyForecast({ weather }: DailyForecastProps) {
                   {/* Dot for current temp if it's today */}
                   {index === 0 && (
                     <div 
-                      className="absolute top-1/2 w-2 h-2 bg-white border-2 border-slate-800 rounded-full -translate-y-1/2 shadow-sm z-10"
+                      className="absolute top-1/2 w-2 h-2 bg-white dark:bg-slate-900 border-2 border-slate-800 dark:border-slate-300 rounded-full -translate-y-1/2 shadow-sm z-10"
                       style={{ 
                         left: `${((weather.current.temp_c - minTemp) / range) * 100}%`,
                         marginLeft: '-4px'
@@ -78,7 +78,7 @@ export function DailyForecast({ weather }: DailyForecastProps) {
                     />
                   )}
                 </div>
-                <span className="text-[12px] font-bold text-slate-800 w-8 text-left">{Math.round(dayMax)}°</span>
+                <span className="text-[12px] font-bold text-slate-800 dark:text-slate-100 w-8 text-left">{Math.round(dayMax)}°</span>
               </div>
             </div>
           );

@@ -54,7 +54,7 @@ export function WeatherDetails({ weather }: WeatherDetailsProps) {
 
         <div className="flex items-end justify-between">
           <div className="flex flex-col">
-            <h3 className="text-2xl font-bold tracking-tight text-slate-800 leading-none">
+            <h3 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100 leading-none">
               {getAQIStatus(aq["us-epa-index"])}
             </h3>
             <p className="text-[10px] text-slate-400 mt-2 font-medium uppercase tracking-wider">Pollution Status</p>
@@ -65,7 +65,7 @@ export function WeatherDetails({ weather }: WeatherDetailsProps) {
               <div key={p.label} className="flex flex-col items-end">
                 <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{p.label}</span>
                 <div className="flex items-baseline gap-1 mt-0.5">
-                  <span className="text-sm font-bold text-slate-700">{p.value}</span>
+                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{p.value}</span>
                   <span className="text-[8px] text-slate-400 font-bold uppercase">{p.unit.split('/')[0]}</span>
                 </div>
               </div>

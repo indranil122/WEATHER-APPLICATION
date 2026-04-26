@@ -17,7 +17,7 @@ export function GlassCard({ children, className, delay = 0, hoverScale = true }:
       transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
       whileHover={hoverScale ? { y: -4, transition: { duration: 0.2 } } : undefined}
       className={cn(
-        "relative clay-card overflow-hidden text-slate-800",
+        "relative rounded-[32px] overflow-hidden text-slate-800 dark:text-slate-100 bg-white/40 dark:bg-slate-900/40 backdrop-blur-3xl border border-white/50 dark:border-slate-800/50 shadow-xl",
         className
       )}
     >

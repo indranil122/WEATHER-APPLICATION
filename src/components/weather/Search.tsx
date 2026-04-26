@@ -71,9 +71,9 @@ export function Search({ onSelect, isLoading }: SearchProps) {
       <motion.button 
         layoutId="search-pill"
         onClick={() => setIsExpanded(true)}
-        className="flex items-center gap-2.5 px-4 py-2 bg-white/80 backdrop-blur-xl border border-white/40 shadow-[0_4px_20px_rgba(0,0,0,0.1)] rounded-full text-slate-700 hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all group"
+        className="flex items-center gap-2.5 px-4 py-2 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/40 dark:border-slate-800/40 shadow-[0_4px_20px_rgba(0,0,0,0.1)] rounded-full text-slate-700 dark:text-slate-200 hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all group"
       >
-        <SearchIcon className="w-4 h-4 text-slate-500 group-hover:text-slate-800 transition-colors" />
+        <SearchIcon className="w-4 h-4 text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-100 transition-colors" />
         <span className="font-bold text-[13px] tracking-tight">Search</span>
       </motion.button>
 
@@ -83,18 +83,18 @@ export function Search({ onSelect, isLoading }: SearchProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-white/20 backdrop-blur-2xl flex flex-col items-center"
+            className="fixed inset-0 z-[200] bg-white/20 dark:bg-black/40 backdrop-blur-2xl flex flex-col items-center"
           >
             {/* Click outside to close */}
             <div className="absolute inset-0" onClick={() => setIsExpanded(false)} />
             
             <motion.div 
               layoutId="search-pill"
-              className="relative w-full max-w-[90%] md:max-w-md mx-auto z-10 flex flex-col mt-32 bg-white/95 backdrop-blur-xl rounded-[28px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-white/50 overflow-hidden"
+              className="relative w-full max-w-[90%] md:max-w-md mx-auto z-10 flex flex-col mt-32 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-[28px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-white/50 dark:border-slate-800/50 overflow-hidden"
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
             >
               {/* Input Container */}
-              <div className="relative flex items-center px-5 py-4 w-full h-16 border-b border-slate-100">
+              <div className="relative flex items-center px-5 py-4 w-full h-16 border-b border-slate-100 dark:border-slate-800">
                 <SearchIcon className="text-slate-400 w-5 h-5 shrink-0" />
                 <input
                   ref={inputRef}
@@ -102,7 +102,7 @@ export function Search({ onSelect, isLoading }: SearchProps) {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Where to?"
-                  className="bg-transparent border-none outline-none ml-3 text-lg placeholder:text-slate-400 w-full text-slate-800 font-medium"
+                  className="bg-transparent border-none outline-none ml-3 text-lg placeholder:text-slate-400 w-full text-slate-800 dark:text-slate-100 font-medium"
                 />
                 <div className="flex items-center gap-1">
                   {isSearching ? (
@@ -110,7 +110,7 @@ export function Search({ onSelect, isLoading }: SearchProps) {
                   ) : (
                     <button 
                       onClick={() => setIsExpanded(false)} 
-                      className="p-1.5 hover:bg-slate-100 rounded-full text-slate-500 transition-colors"
+                      className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-500 transition-colors"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -122,13 +122,13 @@ export function Search({ onSelect, isLoading }: SearchProps) {
               <div className="flex flex-col max-h-[60vh] overflow-y-auto no-scrollbar">
                 <button
                   onClick={handleGetCurrentLocation}
-                  className="w-full flex items-center gap-4 px-6 py-4 hover:bg-slate-50 text-left transition-colors border-b border-slate-50"
+                  className="w-full flex items-center gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left transition-colors border-b border-slate-50 dark:border-slate-800"
                 >
-                  <div className="p-2 bg-blue-50 rounded-lg">
+                  <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
                     <MapPin className="w-5 h-5 text-blue-500" />
                   </div>
                   <div>
-                    <p className="font-bold text-slate-800 text-sm">Near Me</p>
+                    <p className="font-bold text-slate-800 dark:text-slate-100 text-sm">Near Me</p>
                     <p className="text-[11px] text-slate-500 font-medium">Use current location</p>
                   </div>
                 </button>
@@ -137,14 +137,14 @@ export function Search({ onSelect, isLoading }: SearchProps) {
                   <button
                     key={city.id}
                     onClick={() => handleSelect(city)}
-                    className="w-full flex items-center gap-4 px-6 py-4 hover:bg-slate-50 text-left transition-colors border-b border-slate-50 last:border-0"
+                    className="w-full flex items-center gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left transition-colors border-b border-slate-50 dark:border-slate-800 last:border-0"
                   >
-                    <div className="p-2 bg-slate-100 rounded-lg">
-                      <SearchIcon className="w-4 h-4 text-slate-500" />
+                    <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                      <SearchIcon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <p className="font-bold text-slate-800 text-sm">{city.name}</p>
+                        <p className="font-bold text-slate-800 dark:text-slate-100 text-sm">{city.name}</p>
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{city.country}</p>
                       </div>
                       <p className="text-[11px] text-slate-500 font-medium">

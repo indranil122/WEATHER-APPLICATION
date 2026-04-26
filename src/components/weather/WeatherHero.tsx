@@ -29,7 +29,7 @@ export function WeatherHero({ weather, theme }: WeatherHeroProps) {
   const insight = getInsight(weather);
 
   return (
-    <div className="flex bg-transparent items-center justify-between p-8 md:p-12 w-full text-slate-800 relative z-10 flex-col md:flex-row gap-8 md:gap-0">
+    <div className="flex bg-transparent items-center justify-between p-8 md:p-12 w-full text-slate-800 dark:text-slate-100 relative z-10 flex-col md:flex-row gap-8 md:gap-0">
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
