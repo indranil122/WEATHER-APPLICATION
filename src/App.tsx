@@ -13,7 +13,6 @@ import { AISummary } from './components/weather/AISummary';
 import { motion, AnimatePresence } from 'motion/react';
 import { Loader2, AlertCircle, Bookmark, History } from 'lucide-react';
 import { cn } from './lib/utils';
-import { TabBar, TabId } from './components/layout/TabBar';
 
 export default function App() {
   const [query, setQuery] = useState('London');
@@ -27,7 +26,6 @@ export default function App() {
     const saved = localStorage.getItem('savedCitiesV2');
     return saved ? JSON.parse(saved) : [];
   });
-  const [activeTab, setActiveTab] = useState<TabId>('home');
 
   const generateAISummary = async () => {
     if (!weather) return;
@@ -42,15 +40,17 @@ export default function App() {
     }
   };
 
-  const loadWeather = useCallback(async (lat: number, lon: number, name: string) => {
+  const loadWeather = useCallback(async (lat: number, lon: number, name?: string) => {
     try {
       setLoading(true);
       setError(null);
       setSummary(''); // Clear previous summary
       const data = await fetchWeather(lat, lon);
-      data.location.name = name; // Update name
+      if (name) {
+        data.location.name = name; // Update name only if specifically provided for search
+      }
       setWeather(data);
-      setLastCoords({lat, lon, name});
+      setLastCoords({lat, lon, name: data.location.name});
     } catch (err: any) {
       setError(err.message || 'Failed to load weather data.');
       console.error(err);
@@ -63,7 +63,7 @@ export default function App() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          loadWeather(position.coords.latitude, position.coords.longitude, 'Current Location');
+          loadWeather(position.coords.latitude, position.coords.longitude);
         },
         () => loadWeather(51.5074, -0.1278, 'London')
       );
@@ -97,13 +97,13 @@ export default function App() {
       <Preloader loading={loading} />
 
       <div className="flex flex-col gap-6 min-h-full p-4 md:p-8 max-w-[600px] mx-auto relative z-10 w-full">
-        <header className="flex flex-col gap-4 min-h-[48px]">
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-3 self-start md:self-auto">
+        <header className="flex flex-col gap-4 min-h-[48px] items-center text-center">
+          <div className="flex flex-col items-center justify-center w-full">
+            <div className="flex flex-col items-center gap-3">
               <div className="clay-button w-10 h-10 rounded-full flex items-center justify-center shrink-0">
                 <theme.icon className={cn("w-5 h-5", theme.accent)} />
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col items-center">
                 <div className="flex items-center gap-2">
                   <h1 className="text-xl font-semibold leading-tight text-slate-800">{currentCityName || 'SkyCast AI'}</h1>
                   {weather && lastCoords && (
@@ -121,7 +121,7 @@ export default function App() {
               </div>
             </div>
             {savedCities.length > 0 && (
-              <div className="hidden sm:flex gap-2 flex-wrap justify-end overflow-x-auto pb-1 max-w-full no-scrollbar">
+              <div className="hidden sm:flex gap-2 flex-wrap justify-center mt-4 pb-1 max-w-full no-scrollbar">
                 {savedCities.map(city => (
                   <button
                     key={city.name}
@@ -135,13 +135,9 @@ export default function App() {
             )}
           </div>
           
-          <div className="w-full z-50">
-            <Search onSelect={loadWeather} isLoading={loading} />
-          </div>
-          
           {/* Mobile saved cities chips */}
           {savedCities.length > 0 && (
-            <div className="flex sm:hidden gap-2 overflow-x-auto pb-2 -mx-4 px-4 w-[calc(100%+2rem)] no-scrollbar relative snap-x">
+            <div className="flex sm:hidden gap-2 overflow-x-auto pb-2 -mx-4 px-4 w-[calc(100%+2rem)] no-scrollbar relative snap-x justify-center">
               {savedCities.map((city, idx) => (
                 <button
                   key={`${city.name}-${idx}`}
@@ -177,47 +173,37 @@ export default function App() {
               </motion.div>
             ) : !loading && weather && (
               <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-                className="w-full flex-1"
+                key="content"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+                className="w-full flex-1 flex flex-col gap-6"
               >
-                {activeTab === 'home' && (
-                  <div className="flex flex-col gap-6 w-full">
-                    {/* Hero Section */}
-                    <GlassCard className="p-0 rounded-[32px] overflow-hidden flex items-center justify-between" delay={0.1}>
-                      <WeatherHero weather={weather} theme={theme} />
-                    </GlassCard>
-                    
-                    <div className="mt-2">
-                        <ForecastChart weather={weather} />
-                    </div>
+                {/* Hero Section */}
+                <GlassCard className="p-0 rounded-[32px] overflow-hidden flex items-center justify-between" delay={0.1}>
+                  <WeatherHero weather={weather} theme={theme} />
+                </GlassCard>
+                
+                <div className="text-slate-800">
+                  <DailyForecast weather={weather} />
+                </div>
 
-                    <div className="mt-2 text-slate-800">
-                      <DailyForecast weather={weather} />
-                    </div>
-                  </div>
-                )}
+                <div>
+                    <ForecastChart weather={weather} />
+                </div>
+
+                <div className="flex flex-col gap-6 w-full">
+                  <WeatherDetails weather={weather} />
+                </div>
                 
-                {activeTab === 'environment' && (
-                   <div className="flex flex-col gap-6 w-full fade-in">
-                     <WeatherDetails weather={weather} />
-                   </div>
-                )}
-                
-                {activeTab === 'ai' && (
-                   <div className="flex flex-col gap-6 w-full fade-in z-20 relative">
-                     <div className="w-full min-h-[400px]">
-                      <AISummary 
-                          summary={summary} 
-                          isLoading={summaryLoading} 
-                          onGenerate={generateAISummary} 
-                      />
-                     </div>
-                   </div>
-                )}
+                <div className="w-full min-h-[400px] z-20 relative">
+                  <AISummary 
+                      summary={summary} 
+                      isLoading={summaryLoading} 
+                      onGenerate={generateAISummary} 
+                  />
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -225,8 +211,11 @@ export default function App() {
 
       </div>
       
+      {/* Fixed Search Pill at the bottom */}
       {!loading && !error && (
-        <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+        <div className="fixed bottom-6 left-0 right-0 z-[100] px-4 md:px-0 mx-auto w-full max-w-[320px]">
+          <Search onSelect={loadWeather} isLoading={loading} />
+        </div>
       )}
     </div>
   );
