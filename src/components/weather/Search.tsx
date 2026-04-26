@@ -16,6 +16,7 @@ export function Search({ onSelect, isLoading }: SearchProps) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -29,7 +30,7 @@ export function Search({ onSelect, isLoading }: SearchProps) {
 
   useEffect(() => {
     const timer = setTimeout(async () => {
-      if (query.length >= 3) {
+      if (query.trim().length >= 2) {
         setIsSearching(true);
         const results = await searchCities(query);
         setSuggestions(results);
@@ -37,9 +38,8 @@ export function Search({ onSelect, isLoading }: SearchProps) {
         setIsSearching(false);
       } else {
         setSuggestions([]);
-        setShowSuggestions(false);
       }
-    }, 500);
+    }, 400);
 
     return () => clearTimeout(timer);
   }, [query]);
@@ -48,16 +48,23 @@ export function Search({ onSelect, isLoading }: SearchProps) {
     onSelect(city.latitude, city.longitude, city.name);
     setQuery('');
     setShowSuggestions(false);
+    inputRef.current?.focus();
   };
 
   const handleGetCurrentLocation = () => {
     if (navigator.geolocation) {
+      setIsSearching(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           onSelect(position.coords.latitude, position.coords.longitude, 'Current Location');
+          setQuery('');
+          setShowSuggestions(false);
+          setIsSearching(false);
+          inputRef.current?.focus();
         },
         (error) => {
           console.error("Geolocation error:", error);
+          setIsSearching(false);
           alert("Unable to retrieve your location.");
         }
       );
@@ -69,18 +76,22 @@ export function Search({ onSelect, isLoading }: SearchProps) {
       <div className="relative group bg-[#ffffff26] backdrop-blur-md md:backdrop-blur-xl border border-[#ffffff40] rounded-[24px] flex items-center px-4 py-2 w-72 h-12 shadow-sm transition-all duration-300">
         <SearchIcon className="text-white/60 w-4 h-4 shrink-0" />
         <input
+          ref={inputRef}
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search city..."
           className="bg-transparent border-none outline-none ml-3 text-sm placeholder:text-white/60 w-full text-white"
-          onFocus={() => query.length >= 3 && setShowSuggestions(true)}
+          onFocus={() => setShowSuggestions(true)}
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
           {isSearching ? (
             <Loader2 className="w-5 h-5 text-white/50 animate-spin" />
           ) : query ? (
-            <button onClick={() => setQuery('')} className="p-1 hover:bg-white/10 rounded-full text-white/70">
+            <button 
+              onClick={() => { setQuery(''); inputRef.current?.focus(); }} 
+              className="p-1 hover:bg-white/10 rounded-full text-white/70"
+            >
               <X className="w-5 h-5" />
             </button>
           ) : (
@@ -96,28 +107,52 @@ export function Search({ onSelect, isLoading }: SearchProps) {
       </div>
 
       <AnimatePresence>
-        {showSuggestions && suggestions.length > 0 && (
+        {showSuggestions && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="absolute top-full left-0 right-0 mt-2 bg-white/90 backdrop-blur-2xl rounded-2xl shadow-2xl overflow-hidden border border-white/50"
+            className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl overflow-hidden border border-white/50 max-h-[300px] overflow-y-auto"
           >
+            {/* Current Location Option */}
+            <button
+              onClick={handleGetCurrentLocation}
+              className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 text-left transition-colors border-b border-black/5"
+            >
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <MapPin className="w-4 h-4 text-blue-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900">Use Current Location</p>
+                <p className="text-xs text-slate-500">Enable GPS for precision</p>
+              </div>
+            </button>
+
+            {/* City Suggestions */}
             {suggestions.map((city) => (
               <button
                 key={city.id}
                 onClick={() => handleSelect(city)}
                 className="w-full flex items-center gap-3 px-4 py-3 hover:bg-black/5 text-left transition-colors border-b border-black/5 last:border-0"
               >
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <MapPin className="w-4 h-4 text-blue-600" />
+                <div className="p-2 bg-slate-100 rounded-lg">
+                  <SearchIcon className="w-4 h-4 text-slate-600" />
                 </div>
                 <div>
                   <p className="font-semibold text-slate-900">{city.name}</p>
-                  <p className="text-xs text-slate-500">{city.region}, {city.country}</p>
+                  <p className="text-xs text-slate-500">
+                    {city.region ? `${city.region}, ` : ''}{city.country}
+                  </p>
                 </div>
               </button>
             ))}
+
+            {query.trim().length >= 2 && suggestions.length === 0 && !isSearching && (
+              <div className="px-4 py-8 text-center text-slate-400">
+                <SearchIcon className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                <p className="text-sm">No cities found matching "{query}"</p>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

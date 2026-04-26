@@ -21,8 +21,8 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [summary, setSummary] = useState('');
   const [summaryLoading, setSummaryLoading] = useState(false);
-  const [savedCities, setSavedCities] = useState<string[]>(() => {
-    const saved = localStorage.getItem('savedCities');
+  const [savedCities, setSavedCities] = useState<{name: string, lat: number, lon: number}[]>(() => {
+    const saved = localStorage.getItem('savedCitiesV2');
     return saved ? JSON.parse(saved) : [];
   });
 
@@ -62,13 +62,14 @@ export default function App() {
     }
   }, [loadWeather]);
 
-  const toggleSaveCity = (city: string) => {
-    const newSaved = savedCities.includes(city)
-      ? savedCities.filter(c => c !== city)
+  const toggleSaveCity = (city: {name: string, lat: number, lon: number}) => {
+    const isSaved = savedCities.some(c => c.name === city.name);
+    const newSaved = isSaved
+      ? savedCities.filter(c => c.name !== city.name)
       : [city, ...savedCities].slice(0, 5);
     
     setSavedCities(newSaved);
-    localStorage.setItem('savedCities', JSON.stringify(newSaved));
+    localStorage.setItem('savedCitiesV2', JSON.stringify(newSaved));
   };
 
   const theme = weather 
@@ -109,15 +110,15 @@ export default function App() {
           
           <div className="flex flex-col items-end gap-2 z-50">
             <Search onSelect={loadWeather} isLoading={loading} />
-                    {savedCities.length > 0 && (
+            {savedCities.length > 0 && (
               <div className="flex gap-2 flex-wrap justify-end overflow-x-auto pb-1 max-w-full no-scrollbar">
                 {savedCities.map(city => (
                   <button
-                    key={city}
-                    // onClick={() => loadWeather(city)} // BROKEN
+                    key={city.name}
+                    onClick={() => loadWeather(city.lat, city.lon, city.name)}
                     className="px-2 py-0.5 bg-[#ffffff26] hover:bg-[#ffffff40] backdrop-blur-md rounded-full text-white text-[10px] font-bold uppercase tracking-wider border border-[#ffffff40] transition-all"
                   >
-                    {city}
+                    {city.name}
                   </button>
                 ))}
               </div>
@@ -173,16 +174,16 @@ export default function App() {
                 <div className="md:col-span-1 flex flex-col gap-6">
                   <WeatherDetails weather={weather} />
                   <button 
-                      onClick={() => currentCityName && toggleSaveCity(currentCityName)}
+                      onClick={() => weather && lastCoords && toggleSaveCity({ name: weather.location.name, lat: lastCoords.lat, lon: lastCoords.lon })}
                       className={cn(
                         "flex items-center justify-center gap-2 px-6 py-4 rounded-[24px] transition-all border text-sm font-bold uppercase tracking-wider",
-                        savedCities.includes(currentCityName || '') 
+                        savedCities.some(c => c.name === weather.location.name) 
                           ? "bg-white text-blue-600 border-white" 
                           : "bg-[#ffffff26] text-white border-[#ffffff40] hover:bg-[#ffffff40]"
                       )}
                     >
-                      <Bookmark className={cn("w-4 h-4", savedCities.includes(currentCityName || '') && "fill-current")} />
-                      {savedCities.includes(currentCityName || '') ? 'Saved' : 'Save City'}
+                      <Bookmark className={cn("w-4 h-4", savedCities.some(c => c.name === weather.location.name) && "fill-current")} />
+                      {savedCities.some(c => c.name === weather.location.name) ? 'Saved' : 'Save City'}
                     </button>
                 </div>
 

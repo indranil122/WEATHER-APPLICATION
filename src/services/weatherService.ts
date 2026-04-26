@@ -66,11 +66,20 @@ export async function fetchWeather(lat: number, lon: number): Promise<WeatherDat
 }
 
 export async function searchCities(query: string) {
-  if (query.length < 3) return [];
-  const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${query}`);
+  if (query.trim().length < 2) return [];
+  const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${query}&count=10`);
   if (!response.ok) return [];
   const data = await response.json();
-  return data.results || [];
+  const results = data.results || [];
+  
+  return results.map((city: any) => ({
+    id: city.id,
+    name: city.name,
+    latitude: city.latitude,
+    longitude: city.longitude,
+    country: city.country,
+    region: city.admin1 || city.admin2 || city.timezone || '',
+  }));
 }
 
 export async function getWeatherSummary(weather: WeatherData): Promise<string> {
