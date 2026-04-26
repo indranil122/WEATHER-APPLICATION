@@ -22,14 +22,14 @@
   }
 
   .dark {
-    --bg-color: #0f172a;
+    --bg-color: #000000;
     --text-primary: #f8fafc;
-    --card-bg: rgba(15, 23, 42, 0.4);
-    --card-border: rgba(30, 41, 59, 0.5);
+    --card-bg: rgba(20, 20, 20, 0.4);
+    --card-border: rgba(40, 40, 40, 0.5);
     
-    --clay-bg: #1e293b;
-    --clay-shadow-light: rgba(255, 255, 255, 0.05);
-    --clay-shadow-dark: rgba(0, 0, 0, 0.5);
+    --clay-bg: #000000;
+    --clay-shadow-light: rgba(255, 255, 255, 0.08); /* Faint highlight for pitch black */
+    --clay-shadow-dark: rgba(0, 0, 0, 1);
   }
 
   body {

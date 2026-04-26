@@ -127,7 +127,7 @@ export default function App() {
           {/* Theme Toggle Widget */}
           <button
              onClick={toggleDarkMode}
-             className="absolute top-0 right-0 p-3 rounded-full clay-button hover:scale-110 active:scale-95 transition-all text-slate-600 dark:text-slate-300 z-[100]"
+             className="absolute top-0 right-0 w-12 h-12 flex items-center justify-center rounded-full clay-button hover:scale-110 active:scale-95 transition-all text-slate-600 dark:text-slate-300 z-[100]"
           >
              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
