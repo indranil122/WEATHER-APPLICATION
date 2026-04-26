@@ -55,9 +55,21 @@ export async function fetchWeather(lat: number, lon: number): Promise<WeatherDat
   const data = await weatherRes.json();
   const aqData = airQualityRes.ok ? await airQualityRes.json() : null;
   
+  // Try to get location name if possible, otherwise default to Unknown
+  let locationName = 'Unknown';
+  try {
+    const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
+    if (geoRes.ok) {
+      const geoData = await geoRes.json();
+      locationName = geoData.city || geoData.locality || geoData.principalSubdivision || 'Unknown';
+    }
+  } catch (e) {
+    console.error("Reverse geocoding failed", e);
+  }
+
   return {
     location: {
-      name: 'Unknown', 
+      name: locationName, 
       region: '',                
       country: '',
       localtime: data.current.time,

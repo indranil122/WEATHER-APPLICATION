@@ -168,9 +168,9 @@ export default function App() {
                   <WeatherHero weather={weather} theme={theme} />
                 </GlassCard>
                 
-                <div className="text-slate-800">
+                <GlassCard className="p-6 rounded-[32px]" delay={0.2}>
                   <DailyForecast weather={weather} />
-                </div>
+                </GlassCard>
 
                 <div>
                     <ForecastChart weather={weather} />
