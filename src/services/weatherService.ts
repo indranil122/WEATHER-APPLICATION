@@ -31,7 +31,7 @@ function getConditionText(code: number): string {
     82: 'Violent Rain Showers',
     85: 'Slight Snow Showers',
     86: 'Heavy Snow Showers',
-    95: 'Thunderstorm',
+    95: 'Rain / Possible Thunder',
     96: 'Thunderstorm with Slight Hail',
     99: 'Thunderstorm with Heavy Hail',
   };
