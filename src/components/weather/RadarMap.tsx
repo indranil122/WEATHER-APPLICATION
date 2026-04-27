@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer } from 'react-leaflet';
+import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { GlassCard } from '../layout/GlassCard';
 import { Play, Pause, Layers } from 'lucide-react';
@@ -24,8 +24,16 @@ interface RadarMapProps {
   isDarkMode: boolean;
 }
 
+function MapUpdater({ lat, lon }: { lat: number, lon: number }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView([lat, lon]);
+  }, [lat, lon, map]);
+  return null;
+}
+
 export function RadarMap({ weather, isDarkMode }: RadarMapProps) {
-  const [radarTime, setRadarTime] = useState<number[]>([]);
+  const [radarData, setRadarData] = useState<{time: number, path: string}[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -35,9 +43,8 @@ export function RadarMap({ weather, isDarkMode }: RadarMapProps) {
       try {
         const response = await fetch('https://api.rainviewer.com/public/weather-maps.json');
         const data = await response.json();
-        const times = data.radar.past.map((t: any) => t.time);
-        setRadarTime(times);
-        setCurrentIndex(times.length - 1); // Start at the latest time
+        setRadarData(data.radar.past);
+        setCurrentIndex(data.radar.past.length - 1); // Start at the latest time
       } catch (error) {
         console.error('Failed to load radar times:', error);
       }
@@ -48,13 +55,13 @@ export function RadarMap({ weather, isDarkMode }: RadarMapProps) {
   // Animation effect
   useEffect(() => {
     let interval: any;
-    if (isPlaying && radarTime.length > 0) {
+    if (isPlaying && radarData.length > 0) {
       interval = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % radarTime.length);
+        setCurrentIndex((prev) => (prev + 1) % radarData.length);
       }, 1000); // 1 second per frame
     }
     return () => clearInterval(interval);
-  }, [isPlaying, radarTime]);
+  }, [isPlaying, radarData]);
 
   const lat = weather?.location?.lat || 51.5074;
   const lon = weather?.location?.lon || -0.1278;
@@ -76,9 +83,9 @@ export function RadarMap({ weather, isDarkMode }: RadarMapProps) {
             Precipitation
           </span>
         </div>
-        {radarTime.length > 0 && (
+        {radarData.length > 0 && (
           <span className="text-sm font-medium text-slate-600 dark:text-slate-300 font-mono bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
-            {formatTime(radarTime[currentIndex])}
+            {formatTime(radarData[currentIndex]?.time)}
           </span>
         )}
       </div>
@@ -90,15 +97,15 @@ export function RadarMap({ weather, isDarkMode }: RadarMapProps) {
         className="w-full h-full z-0 pointer-events-auto"
         scrollWheelZoom={true}
       >
+        <MapUpdater lat={lat} lon={lon} />
         <TileLayer
           url={baseLayerUrl}
           attribution='&copy; <a href="https://carto.com/">CARTO</a>'
         />
         
-        {radarTime.length > 0 && (
+        {radarData.length > 0 && (
           <TileLayer
-            key={radarTime[currentIndex]}
-            url={`https://tilecache.rainviewer.com/v2/radar/${radarTime[currentIndex]}/256/{z}/{x}/{y}/2/1_1.png`}
+            url={`https://tilecache.rainviewer.com${radarData[currentIndex]?.path}/256/{z}/{x}/{y}/2/1_1.png`}
             opacity={0.7}
             zIndex={10}
             attribution='&copy; <a href="https://www.rainviewer.com/">RainViewer</a>'
