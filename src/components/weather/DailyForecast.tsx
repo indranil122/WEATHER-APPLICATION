@@ -1,6 +1,7 @@
 import { WeatherData } from '../../types';
 import { format } from 'date-fns';
 import { getThemeByCode } from '../../constants';
+import { Link } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 
 interface DailyForecastProps {
@@ -35,12 +36,13 @@ export function DailyForecast({ weather }: DailyForecastProps) {
           const Icon = theme.icon;
 
           return (
-            <div 
+            <Link 
+              to={`/day/${day.date.split('T')[0]}`}
               key={day.date} 
-              className="group flex items-center justify-between gap-4 py-3 border-b border-slate-100/30 last:border-0"
+              className="group flex items-center justify-between gap-4 py-3 border-b border-slate-100/30 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/30 px-2 -mx-2 rounded-xl transition-colors cursor-pointer"
             >
               <div className="w-[15%] flex flex-col">
-                <span className="text-[13px] font-bold text-slate-800 dark:text-slate-100">
+                <span className="text-[13px] font-bold text-slate-800 dark:text-slate-100 group-hover:text-blue-500 transition-colors">
                   {index === 0 ? 'Today' : format(new Date(day.date), 'EEE')}
                 </span>
                 <span className="text-[10px] font-bold text-slate-400 uppercase">
@@ -80,7 +82,7 @@ export function DailyForecast({ weather }: DailyForecastProps) {
                 </div>
                 <span className="text-[12px] font-bold text-slate-800 dark:text-slate-100 w-8 text-left">{Math.round(dayMax)}°</span>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>
