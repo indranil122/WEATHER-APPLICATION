@@ -20,88 +20,46 @@ export function Preloader({ loading }: { loading: boolean }) {
         <motion.div
            key="preloader"
            initial={{ opacity: 1 }}
-           exit={{ opacity: 0, filter: "blur(10px)", scale: 1.1 }}
-           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-           className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#020617] overflow-hidden"
+           exit={{ opacity: 0 }}
+           transition={{ duration: 0.5, ease: "easeInOut" }}
+           className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white overflow-hidden"
         >
-           {/* Ambient Background glows */}
-           <motion.div 
-             animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] max-w-[600px] max-h-[600px] rounded-full bg-sky-500/20 blur-[100px]"
-           />
-           <motion.div 
-             animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.4, 0.2] }}
-             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] max-w-[400px] max-h-[400px] rounded-full bg-indigo-500/20 blur-[80px]"
-           />
-           
-           <div className="relative z-10 flex flex-col items-center gap-10">
-             {/* Icon Morph Container */}
-             <div className="relative w-32 h-32 flex items-center justify-center">
-                {/* Ethereal Glow Behind Icon */}
-                <motion.div 
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                  className="absolute inset-0 rounded-full border-[1px] border-white/5 border-t-sky-400/50 border-r-indigo-400/50 shadow-[0_0_30px_rgba(56,189,248,0.2)]"
-                />
-                <motion.div 
-                  animate={{ rotate: -360 }}
-                  transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-                  className="absolute opacity-50 inset-[-10px] rounded-full border-[1px] border-white/5 border-b-sky-300/30 border-l-transparent"
-                />
-                
+           <div className="relative z-10 flex flex-col items-center gap-8">
+             <div className="relative w-16 h-16 flex items-center justify-center">
                 <AnimatePresence mode="wait">
                   {icons.map((Icon, idx) => (
                     idx === iconIndex && (
                       <motion.div
                         key={idx}
-                        initial={{ opacity: 0, scale: 0.5, filter: "blur(4px)" }}
-                        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                        exit={{ opacity: 0, scale: 1.2, filter: "blur(4px)" }}
-                        transition={{ duration: 0.6, ease: "easeInOut" }}
-                        className="absolute text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        transition={{ duration: 0.4, ease: "easeInOut" }}
+                        className="absolute text-slate-900"
                       >
-                        <Icon strokeWidth={1} className="w-12 h-12" />
+                        <Icon strokeWidth={1} className="w-10 h-10" />
                       </motion.div>
                     )
                   ))}
                 </AnimatePresence>
              </div>
 
-             <div className="flex flex-col items-center gap-4 text-center">
-               <motion.h1 
-                 animate={{ opacity: [0.5, 1, 0.5] }}
-                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                 className="text-white text-xs font-light uppercase tracking-[0.4em] ml-[0.4em]"
-               >
-                 SkyCast AI
-               </motion.h1>
-               <div className="flex gap-1.5 items-center">
-                 <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0 }} className="w-1 h-1 rounded-full bg-sky-400" />
-                 <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }} className="w-1 h-1 rounded-full bg-sky-400" />
-                 <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }} className="w-1 h-1 rounded-full bg-sky-400" />
-               </div>
+             <div className="flex flex-col items-center gap-2 text-center">
+               <h1 className="text-slate-900 text-xs font-medium uppercase tracking-[0.3em]">
+                 SkyCast
+               </h1>
              </div>
            </div>
            
-           {/* Bottom loading progress effect */}
-           <motion.div 
-             initial={{ opacity: 0, y: 20 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ delay: 0.5, duration: 1 }}
-             className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center w-[200px]"
-           >
-             <div className="w-full h-[1px] bg-white/10 overflow-hidden relative rounded-full">
+           {/* Simple bottom loading progress */}
+           <div className="absolute bottom-8 w-24 h-[2px] bg-slate-100 rounded-full overflow-hidden">
                <motion.div 
                  initial={{ x: '-100%' }}
                  animate={{ x: '100%' }}
-                 transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                 className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-sky-400 to-transparent"
+                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                 className="absolute inset-y-0 left-0 w-1/2 bg-slate-400"
                />
-             </div>
-             <p className="text-white/40 text-[9px] uppercase tracking-widest mt-4">Synthesizing Atmosphere</p>
-           </motion.div>
+           </div>
         </motion.div>
       )}
     </AnimatePresence>
