@@ -41,7 +41,7 @@ function getConditionText(code: number): string {
 export async function fetchWeather(lat: number, lon: number): Promise<WeatherData> {
   const [weatherRes, airQualityRes] = await Promise.all([
     fetch(
-      `${BASE_URL}/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code,precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto`
+      `${BASE_URL}/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_gusts_10m,precipitation,surface_pressure,cloud_cover&hourly=temperature_2m,weather_code,precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto`
     ),
     fetch(
       `${AIR_QUALITY_URL}?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,nitrogen_dioxide,ozone,us_aqi`
@@ -82,10 +82,15 @@ export async function fetchWeather(lat: number, lon: number): Promise<WeatherDat
         icon: '',
         code: data.current.weather_code,
       },
-      wind_kph: data.current.wind_speed_10m,
-      humidity: data.current.relative_humidity_2m,
-      feelslike_c: data.current.apparent_temperature,
-      feelslike_f: (data.current.apparent_temperature * 9/5) + 32,
+      wind_kph: data.current.wind_speed_10m || 0,
+      wind_gusts_kph: data.current.wind_gusts_10m || 0,
+      humidity: data.current.relative_humidity_2m || 0,
+      feelslike_c: data.current.apparent_temperature || 0,
+      feelslike_f: ((data.current.apparent_temperature || 0) * 9/5) + 32,
+      precip_mm: data.current.precipitation || 0,
+      precip_chance: data.hourly?.precipitation_probability?.[0] || 0,
+      pressure_mb: data.current.surface_pressure || 0,
+      cloud_cover: data.current.cloud_cover || 0,
       uv: 0, 
       air_quality: {
         "us-epa-index": aqData?.current?.us_aqi ? Math.ceil(aqData.current.us_aqi / 50) : 1, // Simplified mapping to 1-6 if needed, or use as is

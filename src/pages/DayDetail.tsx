@@ -97,7 +97,7 @@ export function DayDetail({ weather }: DayDetailProps) {
       </GlassCard>
 
       {/* Sun Path Animation */}
-      <SunPath sunrise={dayData.astro.sunrise} sunset={dayData.astro.sunset} delay={0.2} />
+      <SunPath sunrise={dayData.astro.sunrise} sunset={dayData.astro.sunset} delay={0.2} currentTime={weather.location.localtime} />
 
       {/* Hourly Forecast Chart */}
       <GlassCard className="p-6 rounded-[32px] flex flex-col gap-6" delay={0.4}>

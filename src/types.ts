@@ -14,9 +14,14 @@ export interface WeatherData {
       code: number;
     };
     wind_kph: number;
+    wind_gusts_kph: number;
     humidity: number;
     feelslike_c: number;
     feelslike_f: number;
+    precip_mm: number;
+    precip_chance: number;
+    pressure_mb: number;
+    cloud_cover: number;
     uv: number;
     air_quality: {
       "us-epa-index": number;
