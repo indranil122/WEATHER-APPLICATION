@@ -10,11 +10,12 @@ import { WeatherHero } from './components/weather/WeatherHero';
 import { WeatherDetails } from './components/weather/WeatherDetails';
 import { ForecastChart } from './components/weather/ForecastChart';
 import { DailyForecast } from './components/weather/DailyForecast';
-import { RadarMap } from './components/weather/RadarMap';
+import { RadarPreview } from './components/weather/RadarPreview';
 import { motion, AnimatePresence } from 'motion/react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Loader2, AlertCircle, Bookmark, History, Moon, Sun } from 'lucide-react';
 import { DayDetail } from './pages/DayDetail';
+import { MapPage } from './pages/MapPage';
 import { cn } from './lib/utils';
 
 export default function App() {
@@ -119,6 +120,7 @@ export default function App() {
   const isCitySaved = weather && savedCities.some(c => c.name === weather.location.name);
   const location = useLocation();
   const isDayDetail = location.pathname.startsWith('/day');
+  const isMapPage = location.pathname === '/map';
 
   return (
     <UnitContext.Provider value={{ unit, toggleUnit }}>
@@ -141,7 +143,7 @@ export default function App() {
       <Preloader loading={loading} />
 
       <div className="flex flex-col gap-6 min-h-full p-4 md:p-8 max-w-[600px] mx-auto relative z-10 w-full">
-        {!isDayDetail && (
+        {!isDayDetail && !isMapPage && (
           <header className="flex flex-col gap-4 min-h-[48px] items-center text-center relative w-full pt-2">
             {/* Theme & Unit Toggle Widget */}
             <div className="absolute top-0 right-0 flex gap-2 z-[100]">
@@ -262,11 +264,12 @@ export default function App() {
                     </div>
 
                     <div className="flex flex-col gap-6 w-full pb-8">
-                       <RadarMap weather={weather} isDarkMode={isDarkMode} />
+                       <RadarPreview weather={weather} isDarkMode={isDarkMode} />
                     </div>
                   </motion.div>
                 } />
                 <Route path="/day/:date" element={<DayDetail weather={weather} />} />
+                <Route path="/map" element={<MapPage weather={weather} isDarkMode={isDarkMode} />} />
               </Routes>
             )}
           </AnimatePresence>
@@ -275,7 +278,7 @@ export default function App() {
       </div>
       
       {/* Fixed Search Pill at the bottom */}
-      {!loading && !error && !isDayDetail && (
+      {!loading && !error && !isDayDetail && !isMapPage && (
         <div className="fixed bottom-6 left-0 right-0 z-[100] px-4 md:px-0 mx-auto w-full max-w-[320px]">
           <Search onSelect={loadWeather} isLoading={loading} />
         </div>
