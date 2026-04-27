@@ -97,18 +97,17 @@ export function SunPath({ sunrise, sunset, currentTime, delay = 0.2 }: SunPathPr
          </div>
       </div>
       
-      <div className="relative w-full pt-4">
-        {/* Current Info Overlay */}
-        <div className="absolute top-8 left-0 right-0 flex flex-col items-center justify-center pointer-events-none z-10">
-           <span className="text-2xl font-black text-slate-800 dark:text-slate-100 drop-shadow-md">
-             {format(now, 'h:mm a')}
-           </span>
-           <span className="text-[10px] font-bold uppercase tracking-widest text-orange-500 mt-1 dark:text-orange-400">
-             {timeLeftStr}
-           </span>
-        </div>
-
-        <svg viewBox="0 0 200 100" className="w-full h-auto overflow-visible pb-2 mt-4">
+      <div className="flex flex-col items-center justify-center mt-4">
+         <span className="text-3xl font-black text-slate-800 dark:text-slate-100 drop-shadow-sm">
+           {format(now, 'h:mm a')}
+         </span>
+         <span className="text-[10px] font-bold uppercase tracking-widest text-orange-500 mt-1 dark:text-orange-400">
+           {timeLeftStr}
+         </span>
+      </div>
+      
+      <div className="relative w-full">
+        <svg viewBox="0 0 200 100" className="w-full h-auto overflow-visible mt-2">
           {/* Background Arc */}
           <path 
              d="M 20 90 A 80 80 0 0 1 180 90" 
@@ -145,10 +144,10 @@ export function SunPath({ sunrise, sunset, currentTime, delay = 0.2 }: SunPathPr
             transition={{ duration: 2.5, ease: "easeOut", delay: delay + 0.2 }}
             style={{ transformOrigin: "100px 90px" }}
           >
-            {/* The sun placed to orbit along the edge */}
-            <foreignObject x="86" y="-8" width="28" height="28">
-              <div className="w-full h-full bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-[0_4px_12px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-600 transition-opacity" style={{ opacity: isDay ? 1 : 0.5 }}>
-                <Sun className="w-[14px] h-[14px] text-yellow-500 animate-[spin_6s_linear_infinite]" />
+            {/* The sun placed to orbit exactly along the arc edge */}
+            <foreignObject x="88" y="-2" width="24" height="24">
+              <div className="w-full h-full bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.15)] border border-slate-100 dark:border-slate-600 transition-opacity" style={{ opacity: isDay ? 1 : 0.5 }}>
+                <Sun className="w-3.5 h-3.5 text-yellow-500 animate-[spin_6s_linear_infinite]" />
               </div>
             </foreignObject>
           </motion.g>
