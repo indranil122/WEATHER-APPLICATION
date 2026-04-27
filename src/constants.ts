@@ -61,14 +61,14 @@ export const WEATHER_THEMES: Record<string, WeatherTheme> = {
 };
 
 export function getThemeByCode(code: number): WeatherTheme {
-  
-  // Open-Meteo WMO Weather interpretation codes
-  if (code === 0) return WEATHER_THEMES.sunny;
-  if ([1, 2, 3].includes(code)) return WEATHER_THEMES.cloudy;
-  if ([45, 48].includes(code)) return WEATHER_THEMES.foggy;
-  if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return WEATHER_THEMES.rainy;
-  if ([71, 73, 75, 77, 85, 86].includes(code)) return WEATHER_THEMES.snowy;
-  if ([95, 96, 99].includes(code)) return WEATHER_THEMES.stormy;
+  // OpenWeatherMap condition codes
+  if (code >= 200 && code < 300) return WEATHER_THEMES.stormy;
+  if (code >= 300 && code < 400) return WEATHER_THEMES.rainy; // Drizzle
+  if (code >= 500 && code < 600) return WEATHER_THEMES.rainy;
+  if (code >= 600 && code < 700) return WEATHER_THEMES.snowy;
+  if (code >= 700 && code < 800) return WEATHER_THEMES.foggy;
+  if (code === 800) return WEATHER_THEMES.sunny;
+  if (code > 800 && code < 900) return WEATHER_THEMES.cloudy;
   
   return WEATHER_THEMES.sunny;
 }
