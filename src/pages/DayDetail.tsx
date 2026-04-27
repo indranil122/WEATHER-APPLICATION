@@ -7,7 +7,8 @@ import { GlassCard } from '../components/layout/GlassCard';
 import { ArrowLeft, Sunrise, Sunset, CloudRain, Thermometer, Wind, Droplets } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { SunPath } from '../components/weather/SunPath';
-import { cn } from '../lib/utils';
+import { cn, getTemp } from '../lib/utils';
+import { useUnit } from '../context';
 
 interface DayDetailProps {
   weather: WeatherData | null;
@@ -16,6 +17,7 @@ interface DayDetailProps {
 export function DayDetail({ weather }: DayDetailProps) {
   const { date } = useParams<{ date: string }>();
   const navigate = useNavigate();
+  const { unit } = useUnit();
 
   if (!weather || !date) {
     return (
@@ -49,7 +51,7 @@ export function DayDetail({ weather }: DayDetailProps) {
     const timeStr = typeof h.time === 'string' ? h.time : String(h.time);
     return {
       time: timeStr.includes('T') ? format(parseISO(timeStr), 'h a') : timeStr.split(' ')[1] || '00:00',
-      temp: h.temp_c,
+      temp: Math.round(getTemp(h.temp_c, unit)),
       rain: h.chance_of_rain
     };
   });
@@ -82,12 +84,12 @@ export function DayDetail({ weather }: DayDetailProps) {
         
         <div className="flex items-center gap-6 mt-2">
             <div className="flex flex-col items-center">
-                <span className="text-4xl font-black text-slate-800 dark:text-slate-100">{Math.round(dayData.day.maxtemp_c)}°</span>
+                <span className="text-4xl font-black text-slate-800 dark:text-slate-100">{Math.round(getTemp(dayData.day.maxtemp_c, unit))}°</span>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">High</span>
             </div>
             <div className="w-px h-12 bg-slate-300 dark:bg-slate-700/50" />
             <div className="flex flex-col items-center">
-                <span className="text-4xl font-black text-slate-800 dark:text-slate-100">{Math.round(dayData.day.mintemp_c)}°</span>
+                <span className="text-4xl font-black text-slate-800 dark:text-slate-100">{Math.round(getTemp(dayData.day.mintemp_c, unit))}°</span>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Low</span>
             </div>
         </div>
@@ -172,7 +174,7 @@ export function DayDetail({ weather }: DayDetailProps) {
                  fillOpacity={1} 
                  fill="url(#colorTemp)" 
                  strokeWidth={3}
-                 name="Temp (°C)"
+                 name={`Temp (°${unit})`}
                />
              </AreaChart>
            </ResponsiveContainer>

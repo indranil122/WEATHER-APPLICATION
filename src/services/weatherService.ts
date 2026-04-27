@@ -73,6 +73,8 @@ export async function fetchWeather(lat: number, lon: number): Promise<WeatherDat
       region: '',                
       country: '',
       localtime: data.current.time,
+      lat,
+      lon,
     },
     current: {
       temp_c: data.current.temperature_2m,

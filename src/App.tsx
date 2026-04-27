@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { fetchWeather } from './services/weatherService';
 import { WeatherData } from './types';
 import { getThemeByCode, WEATHER_THEMES } from './constants';
+import { UnitContext, TemperatureUnit } from './context';
 import { Preloader } from './components/layout/Preloader';
 import { GlassCard } from './components/layout/GlassCard';
 import { Search } from './components/weather/Search';
@@ -9,6 +10,7 @@ import { WeatherHero } from './components/weather/WeatherHero';
 import { WeatherDetails } from './components/weather/WeatherDetails';
 import { ForecastChart } from './components/weather/ForecastChart';
 import { DailyForecast } from './components/weather/DailyForecast';
+import { RadarMap } from './components/weather/RadarMap';
 import { motion, AnimatePresence } from 'motion/react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Loader2, AlertCircle, Bookmark, History, Moon, Sun } from 'lucide-react';
@@ -29,6 +31,9 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem('theme') === 'dark';
   });
+  const [unit, setUnit] = useState<TemperatureUnit>(() => {
+    return (localStorage.getItem('tempUnit') as TemperatureUnit) || 'C';
+  });
   const [reveal, setReveal] = useState<{ x: number, y: number, active: boolean }>({ x: 0, y: 0, active: false });
 
   useEffect(() => {
@@ -39,6 +44,14 @@ export default function App() {
     }
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
+
+  useEffect(() => {
+    localStorage.setItem('tempUnit', unit);
+  }, [unit]);
+
+  const toggleUnit = () => {
+    setUnit(prev => prev === 'C' ? 'F' : 'C');
+  };
 
   const toggleDarkMode = (e: React.MouseEvent) => {
     const x = e.clientX;
@@ -108,6 +121,7 @@ export default function App() {
   const isDayDetail = location.pathname.startsWith('/day');
 
   return (
+    <UnitContext.Provider value={{ unit, toggleUnit }}>
     <div className={cn(
       "min-h-[100dvh] w-full transition-all duration-1000 ease-in-out font-sans text-slate-800 dark:text-slate-100 pb-24", // pb-24 to add space for the bottom tab bar
       theme.gradient
@@ -129,13 +143,21 @@ export default function App() {
       <div className="flex flex-col gap-6 min-h-full p-4 md:p-8 max-w-[600px] mx-auto relative z-10 w-full">
         {!isDayDetail && (
           <header className="flex flex-col gap-4 min-h-[48px] items-center text-center relative w-full pt-2">
-            {/* Theme Toggle Widget */}
-            <button
-               onClick={toggleDarkMode}
-               className="absolute top-0 right-0 w-12 h-12 flex items-center justify-center rounded-full clay-button hover:scale-110 active:scale-95 transition-all text-slate-600 dark:text-slate-300 z-[100]"
-            >
-               {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
+            {/* Theme & Unit Toggle Widget */}
+            <div className="absolute top-0 right-0 flex gap-2 z-[100]">
+              <button
+                onClick={toggleUnit}
+                className="w-12 h-12 flex items-center justify-center rounded-full clay-button hover:scale-110 active:scale-95 transition-all text-slate-600 dark:text-slate-300 font-bold"
+              >
+                °{unit}
+              </button>
+              <button
+                 onClick={toggleDarkMode}
+                 className="w-12 h-12 flex items-center justify-center rounded-full clay-button hover:scale-110 active:scale-95 transition-all text-slate-600 dark:text-slate-300"
+              >
+                 {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+            </div>
             
             <div className="flex flex-col items-center justify-center w-full">
               <div className="flex flex-col items-center gap-3">
@@ -235,8 +257,12 @@ export default function App() {
                         <ForecastChart weather={weather} />
                     </div>
 
-                    <div className="flex flex-col gap-6 w-full pb-8">
+                    <div className="flex flex-col gap-6 w-full">
                       <WeatherDetails weather={weather} />
+                    </div>
+
+                    <div className="flex flex-col gap-6 w-full pb-8">
+                       <RadarMap weather={weather} isDarkMode={isDarkMode} />
                     </div>
                   </motion.div>
                 } />
@@ -255,5 +281,6 @@ export default function App() {
         </div>
       )}
     </div>
+    </UnitContext.Provider>
   );
 }

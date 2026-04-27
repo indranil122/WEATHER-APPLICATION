@@ -2,15 +2,18 @@ import { WeatherData } from '../../types';
 import { format } from 'date-fns';
 import { getThemeByCode } from '../../constants';
 import { Link } from 'react-router-dom';
-import { cn } from '../../lib/utils';
+import { cn, getTemp } from '../../lib/utils';
+import { useUnit } from '../../context';
 
 interface DailyForecastProps {
   weather: WeatherData;
 }
 
 export function DailyForecast({ weather }: DailyForecastProps) {
+  const { unit } = useUnit();
+
   // Find project-wide min/max to scale the bars
-  const allTemps = weather.forecast.forecastday.flatMap(d => [d.day.maxtemp_c, d.day.mintemp_c]);
+  const allTemps = weather.forecast.forecastday.flatMap(d => [getTemp(d.day.maxtemp_c, unit), getTemp(d.day.mintemp_c, unit)]);
   const minTemp = Math.min(...allTemps) - 2; // Add some padding
   const maxTemp = Math.max(...allTemps) + 2;
   const range = maxTemp - minTemp;
@@ -25,8 +28,8 @@ export function DailyForecast({ weather }: DailyForecastProps) {
       
       <div className="flex flex-col gap-1">
         {weather.forecast.forecastday.map((day, index) => {
-          const dayMin = day.day.mintemp_c;
-          const dayMax = day.day.maxtemp_c;
+          const dayMin = getTemp(day.day.mintemp_c, unit);
+          const dayMax = getTemp(day.day.maxtemp_c, unit);
           
           const leftPos = ((dayMin - minTemp) / range) * 100;
           const widthPos = ((dayMax - dayMin) / range) * 100;
@@ -74,7 +77,7 @@ export function DailyForecast({ weather }: DailyForecastProps) {
                     <div 
                       className="absolute top-1/2 w-2 h-2 bg-white dark:bg-slate-900 border-2 border-slate-800 dark:border-slate-300 rounded-full -translate-y-1/2 shadow-sm z-10"
                       style={{ 
-                        left: `${((weather.current.temp_c - minTemp) / range) * 100}%`,
+                        left: `${((getTemp(weather.current.temp_c, unit) - minTemp) / range) * 100}%`,
                         marginLeft: '-4px'
                       }}
                     />

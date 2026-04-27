@@ -2,15 +2,19 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { WeatherData } from '../../types';
 import { GlassCard } from '../layout/GlassCard';
 import { format, parse } from 'date-fns';
+import { useUnit } from '../../context';
+import { getTemp } from '../../lib/utils';
 
 interface ForecastChartProps {
   weather: WeatherData;
 }
 
 export function ForecastChart({ weather }: ForecastChartProps) {
+  const { unit } = useUnit();
+
   const hourlyData = weather.forecast.forecastday[0].hour.map((h, i) => ({
     time: format(new Date(h.time), 'HH:mm'),
-    temp: h.temp_c,
+    temp: Math.round(getTemp(h.temp_c, unit)),
     rain: h.chance_of_rain,
   })).filter((_, i) => i % 2 === 0); // Show every 2 hours for better spacing
 

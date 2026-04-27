@@ -4,6 +4,8 @@ export interface WeatherData {
     region: string;
     country: string;
     localtime: string;
+    lat?: number;
+    lon?: number;
   };
   current: {
     temp_c: number;

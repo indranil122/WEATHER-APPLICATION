@@ -1,8 +1,9 @@
 import { motion } from 'motion/react';
 import { WeatherData } from '../../types';
 import { WeatherTheme } from '../../constants';
-import { cn } from '../../lib/utils';
+import { cn, getTemp } from '../../lib/utils';
 import { Zap } from 'lucide-react';
+import { useUnit } from '../../context';
 
 interface WeatherHeroProps {
   weather: WeatherData;
@@ -27,6 +28,7 @@ export function WeatherHero({ weather, theme }: WeatherHeroProps) {
   const current = weather.current;
   const Icon = theme.icon;
   const insight = getInsight(weather);
+  const { unit } = useUnit();
 
   return (
     <div className="flex bg-transparent items-center justify-between p-8 md:p-12 w-full text-slate-800 dark:text-slate-100 relative z-10 flex-col md:flex-row gap-8 md:gap-0">
@@ -38,9 +40,9 @@ export function WeatherHero({ weather, theme }: WeatherHeroProps) {
       >
         <div className="flex items-start font-display justify-center md:justify-start w-full">
           <span className="text-[100px] md:text-[140px] font-bold leading-none tracking-tighter drop-shadow-sm">
-            {Math.round(current.temp_c)}<span className="text-8xl md:text-[110px]">°</span>
+            {Math.round(getTemp(current.temp_c, unit))}<span className="text-8xl md:text-[110px]">°</span>
           </span>
-          <span className="text-4xl md:text-5xl font-medium opacity-80 mt-4 md:mt-6 tracking-normal">C</span>
+          <span className="text-4xl md:text-5xl font-medium opacity-80 mt-4 md:mt-6 tracking-normal">{unit}</span>
         </div>
         <div className="flex flex-col gap-2 mt-2 items-center md:items-start font-sans">
           <div className="flex items-center gap-3">

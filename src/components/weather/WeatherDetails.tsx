@@ -1,11 +1,12 @@
 import { Wind, Droplets, Sun, Sunrise, Sunset, Moon as MoonIcon, Cloud, Activity, Thermometer, CloudRain, Gauge, Compass } from 'lucide-react';
 import { WeatherData } from '../../types';
 import { GlassCard } from '../layout/GlassCard';
-import { cn } from '../../lib/utils';
+import { cn, getTemp } from '../../lib/utils';
 import { useState, useEffect } from 'react';
 import { getMoonPhase, getMoonPhaseName, getNextMoonPhaseDate } from '../../lib/moon';
 import { SunPath } from './SunPath';
 import { format } from 'date-fns';
+import { useUnit } from '../../context';
 
 interface WeatherDetailsProps {
   weather: WeatherData;
@@ -15,6 +16,7 @@ export function WeatherDetails({ weather }: WeatherDetailsProps) {
   const current = weather.current;
   const astro = weather.forecast.forecastday[0].astro;
   const currentDate = new Date(weather.location.localtime);
+  const { unit } = useUnit();
   
   const phaseValue = getMoonPhase(currentDate);
   const phaseName = getMoonPhaseName(phaseValue);
@@ -32,8 +34,8 @@ export function WeatherDetails({ weather }: WeatherDetailsProps) {
             <p className="text-[10px] uppercase font-bold tracking-widest text-slate-500">Feels Like</p>
           </div>
           <p className="text-xl font-bold flex items-baseline gap-1 mt-auto text-slate-800 dark:text-slate-100">
-            {Math.round(current.feelslike_c)}
-            <span className="text-[11px] text-slate-500 font-medium tracking-normal">°C</span>
+            {Math.round(getTemp(current.feelslike_c, unit))}
+            <span className="text-[11px] text-slate-500 font-medium tracking-normal">°{unit}</span>
           </p>
         </GlassCard>
 
