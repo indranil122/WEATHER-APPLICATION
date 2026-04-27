@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, useMap, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Play, Pause, Layers, ArrowLeft, AlertTriangle, Maximize, Minimize } from 'lucide-react';
+import { Play, Pause, Layers, ArrowLeft, AlertTriangle, Maximize, Minimize, Activity, Droplets, Mountain, CloudLightning, Flame } from 'lucide-react';
 import { WeatherData } from '../types';
 import { useNavigate } from 'react-router-dom';
+import { renderToString } from 'react-dom/server';
 
 // Fix leaflet icon path issues
 import L from 'leaflet';
@@ -18,14 +19,41 @@ let DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// Custom alert icon for disasters
-const alertHtml = `<div style="background-color: #ef4444; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>`;
-const AlertIcon = L.divIcon({
-  html: alertHtml,
-  className: 'custom-alert-icon',
-  iconSize: [24, 24],
-  iconAnchor: [12, 12],
-});
+// Custom alert icon for disasters function
+const getDisasterIcon = (categories: string[]) => {
+  const catNames = categories.join(' ').toLowerCase();
+  
+  let IconComponent = AlertTriangle;
+  let bgColor = '#ef4444'; // default red
+
+  if (catNames.includes('earthquake')) {
+    IconComponent = Activity;
+    bgColor = '#f97316'; // orange
+  } else if (catNames.includes('flood')) {
+    IconComponent = Droplets;
+    bgColor = '#3b82f6'; // blue
+  } else if (catNames.includes('volcano')) {
+    IconComponent = Mountain; 
+    bgColor = '#7c2d12'; // dark brown/red
+  } else if (catNames.includes('storm')) {
+    IconComponent = CloudLightning;
+    bgColor = '#64748b'; // slate
+  } else if (catNames.includes('wildfire') || catNames.includes('fire')) {
+    IconComponent = Flame;
+    bgColor = '#ef4444'; // red
+  }
+
+  const iconSvg = renderToString(<IconComponent size={14} color="white" strokeWidth={2} />);
+  
+  const alertHtml = `<div style="background-color: ${bgColor}; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">${iconSvg}</div>`;
+  
+  return L.divIcon({
+    html: alertHtml,
+    className: 'custom-alert-icon',
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+  });
+};
 
 interface MapPageProps {
   weather: WeatherData | null;
@@ -267,7 +295,7 @@ export function MapPage({ weather, isDarkMode }: MapPageProps) {
           if (!event.lat || !event.lon) return null;
 
           return (
-            <Marker key={`disaster-${event.id}-${idx}`} position={[event.lat, event.lon]} icon={AlertIcon}>
+            <Marker key={`disaster-${event.id}-${idx}`} position={[event.lat, event.lon]} icon={getDisasterIcon(event.categories)}>
               <Popup>
                 <div className="font-sans min-w-[200px]">
                   <strong className="text-red-600 block mb-1 text-sm leading-tight">{event.title}</strong>
