@@ -48,7 +48,6 @@ export interface WeatherData {
         condition: {
           text: string;
           icon: string;
-          code?: number;
         };
         chance_of_rain: number;
       }>;
