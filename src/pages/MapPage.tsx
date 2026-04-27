@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, useMap, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Play, Pause, Layers, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { Play, Pause, Layers, ArrowLeft, AlertTriangle, Maximize, Minimize } from 'lucide-react';
 import { WeatherData } from '../types';
 import { useNavigate } from 'react-router-dom';
 
@@ -45,6 +45,8 @@ type LayerMode = 'precipitation' | 'disaster';
 export function MapPage({ weather, isDarkMode }: MapPageProps) {
   const navigate = useNavigate();
   const [mode, setMode] = useState<LayerMode>('precipitation');
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   // Precipitation states
   const [radarData, setRadarData] = useState<{time: number, path: string}[]>([]);
@@ -54,6 +56,25 @@ export function MapPage({ weather, isDarkMode }: MapPageProps) {
   // Disaster states
   const [disasters, setDisasters] = useState<any[]>([]);
   const [loadingDisasters, setLoadingDisasters] = useState(false);
+
+  // Toggle FullScreen
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      containerRef.current?.requestFullscreen().catch(err => {
+        console.error("Error attempting to enable fullscreen:", err);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   // Fetch rainviewer radar metadata
   useEffect(() => {
@@ -72,17 +93,49 @@ export function MapPage({ weather, isDarkMode }: MapPageProps) {
     fetchRadarTimes();
   }, []);
 
-  // Fetch EONET Disasters
+  // Fetch Disasters
   useEffect(() => {
     if (mode === 'disaster' && disasters.length === 0) {
       async function fetchDisasters() {
         setLoadingDisasters(true);
         try {
-          const response = await fetch('https://eonet.gsfc.nasa.gov/api/v3/events?status=open');
-          const data = await response.json();
-          if (data.events) {
-            setDisasters(data.events);
+          // 1. Fetch EONET (filtered to impactful categories)
+          const eonetRes = await fetch('https://eonet.gsfc.nasa.gov/api/v3/events?status=open&category=earthquakes,floods,severeStorms,volcanoes,wildfires');
+          const eonetData = await eonetRes.json();
+          let parsedDisasters: any[] = [];
+          if (eonetData.events) {
+            parsedDisasters = eonetData.events.map((e: any) => {
+              const latestGeo = e.geometry?.[e.geometry.length - 1];
+              return {
+                id: e.id,
+                title: e.title,
+                categories: e.categories.map((c: any) => c.title),
+                lat: latestGeo?.coordinates[1],
+                lon: latestGeo?.coordinates[0],
+                date: latestGeo?.date,
+                source: 'NASA EONET'
+              };
+            });
           }
+
+          // 2. Fetch USGS Earthquakes (last 7 days, > 4.5 mag)
+          const usgsRes = await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson');
+          const usgsData = await usgsRes.json();
+          if (usgsData.features) {
+            const quakes = usgsData.features.map((f: any) => ({
+              id: f.id,
+              title: f.properties.title,
+              categories: ['Earthquakes'],
+              lat: f.geometry.coordinates[1],
+              lon: f.geometry.coordinates[0],
+              date: new Date(f.properties.time).toISOString(),
+              source: 'USGS',
+              mag: f.properties.mag
+            }));
+            parsedDisasters = [...parsedDisasters, ...quakes];
+          }
+
+          setDisasters(parsedDisasters);
         } catch (err) {
           console.error("Failed to load disasters", err);
         } finally {
@@ -116,22 +169,24 @@ export function MapPage({ weather, isDarkMode }: MapPageProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[999] w-screen h-screen bg-slate-100 dark:bg-slate-950 flex flex-col">
+    <div ref={containerRef} className="fixed inset-0 z-[999] w-screen h-screen bg-slate-100 dark:bg-slate-950 flex flex-col">
       {/* Header / Controls overlay */}
       <div className="absolute top-4 left-4 right-4 z-[1000] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pointer-events-none">
         
-        <div className="flex items-center gap-3 pointer-events-auto">
-          <button 
-            onClick={() => navigate(-1)}
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-white dark:bg-slate-900 shadow-lg text-slate-800 dark:text-white hover:scale-105 active:scale-95 transition-all border border-slate-200 dark:border-slate-800"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+        <div className="flex flex-wrap items-center gap-3 pointer-events-auto">
+          {!isFullscreen && (
+            <button 
+              onClick={() => navigate(-1)}
+              className="w-12 h-12 flex items-center justify-center rounded-full bg-white dark:bg-slate-900 shadow-lg text-slate-800 dark:text-white hover:scale-105 active:scale-95 transition-all border border-slate-200 dark:border-slate-800"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+          )}
 
           <div className="flex bg-white dark:bg-slate-900 shadow-lg rounded-full p-1 border border-slate-200 dark:border-slate-800">
             <button
               onClick={() => setMode('precipitation')}
-              className={`px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all ${
+              className={`px-4 sm:px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all ${
                 mode === 'precipitation' 
                   ? 'bg-blue-500 text-white shadow-sm hover:bg-blue-600' 
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
@@ -139,12 +194,13 @@ export function MapPage({ weather, isDarkMode }: MapPageProps) {
             >
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4" />
-                Precipitation
+                <span className="hidden sm:inline">Precipitation</span>
+                <span className="sm:hidden">Rain</span>
               </div>
             </button>
             <button
               onClick={() => setMode('disaster')}
-              className={`px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all ${
+              className={`px-4 sm:px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all ${
                 mode === 'disaster' 
                   ? 'bg-red-500 text-white shadow-sm hover:bg-red-600' 
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
@@ -156,6 +212,14 @@ export function MapPage({ weather, isDarkMode }: MapPageProps) {
               </div>
             </button>
           </div>
+          
+          <button
+            onClick={toggleFullScreen}
+            className="w-12 h-12 flex items-center justify-center rounded-full bg-white dark:bg-slate-900 shadow-lg text-slate-800 dark:text-white hover:scale-105 active:scale-95 transition-all border border-slate-200 dark:border-slate-800"
+            title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+          >
+            {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+          </button>
         </div>
 
         {mode === 'precipitation' && radarData.length > 0 && (
@@ -200,27 +264,29 @@ export function MapPage({ weather, isDarkMode }: MapPageProps) {
 
         {/* Disaster Layer */}
         {mode === 'disaster' && disasters.map((event, idx) => {
-          // EONET usually stores geometry coordinates chronologically. Get the latest one.
-          const latestGeo = event.geometry?.[event.geometry.length - 1];
-          const coords = latestGeo?.coordinates;
-          if (!coords || !Array.isArray(coords) || coords.length < 2) return null;
-          // React-Leaflet expects [latitude, longitude]
-          const eventLat = coords[1];
-          const eventLon = coords[0];
+          if (!event.lat || !event.lon) return null;
 
           return (
-            <Marker key={`disaster-${idx}`} position={[eventLat, eventLon]} icon={AlertIcon}>
+            <Marker key={`disaster-${event.id}-${idx}`} position={[event.lat, event.lon]} icon={AlertIcon}>
               <Popup>
                 <div className="font-sans min-w-[200px]">
                   <strong className="text-red-600 block mb-1 text-sm leading-tight">{event.title}</strong>
                   <div className="text-xs text-slate-500 mb-2">
-                    {event.categories.map((c: any) => c.title).join(', ')}
+                    {event.categories.join(', ')}
                   </div>
-                  {latestGeo?.date && (
-                    <div className="text-[10px] text-slate-400 font-mono">
-                      {new Date(latestGeo.date).toLocaleString()}
+                  {event.mag && (
+                    <div className="text-xs font-bold text-orange-600 mb-1">
+                      Magnitude: {event.mag}
                     </div>
                   )}
+                  {event.date && (
+                    <div className="text-[10px] text-slate-400 font-mono mb-2">
+                      {new Date(event.date).toLocaleString()}
+                    </div>
+                  )}
+                  <div className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded inline-block">
+                    Source: {event.source}
+                  </div>
                 </div>
               </Popup>
             </Marker>
